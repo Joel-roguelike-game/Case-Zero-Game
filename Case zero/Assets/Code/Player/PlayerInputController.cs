@@ -55,15 +55,5 @@ public class PlayerInputController : MonoBehaviour
     {
         MoveInput = context.ReadValue<Vector2>();
     }
-
-    // After update, reset one-frame buttons
-    private void LateUpdate()
-    {
-        // All these are “one-frame” presses
-        DodgePressed = false;
-        ParryPressed = false;
-        MeleePressed = false;
-        RangedPressed = false;
-        MenuPressed = false;
-    }
+    
 }
