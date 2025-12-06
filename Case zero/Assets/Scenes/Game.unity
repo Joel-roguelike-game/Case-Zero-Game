@@ -701,9 +701,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   moveSpeed: 10
   roomCollider: {fileID: 590957482}
-  dashDistance: 3
-  dashDuration: 0.3
-  dashCooldown: 2
+  dashMultiplier: 2.5
+  dashDuration: 0.18
+  dashCooldown: 2.5
 --- !u!50 &1226447510
 Rigidbody2D:
   serializedVersion: 5

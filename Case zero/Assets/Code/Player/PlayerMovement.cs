@@ -15,7 +15,8 @@ public class PlayerMovement : MonoBehaviour
     public BoxCollider2D roomCollider; // Asignar en Inspector
 
     [Header("Dash Settings")]
-    public float dashDistance = 5f;
+    [Header("Dash Settings")]
+    public float dashMultiplier = 3f;  // Cuántas veces más rápido que la velocidad normal
     public float dashDuration = 0.15f; // duración del dash en segundos
     public float dashCooldown = 1f;
 
@@ -95,27 +96,22 @@ public class PlayerMovement : MonoBehaviour
 
         // Preparar invulnerabilidad aquí (hook)
         // invulnerable = true;
-
-        Vector2 startPos = rb.position;
-        Vector2 targetPos = startPos + dashDirection * dashDistance;
+        
         float elapsed = 0f;
 
         while (elapsed < dashDuration)
         {
-            rb.MovePosition(Vector2.Lerp(startPos, targetPos, elapsed / dashDuration));
+            // Durante el dash, ignoramos input normal
+            rb.linearVelocity = dashMultiplier * moveSpeed * dashDirection;
             elapsed += Time.fixedDeltaTime;
             yield return new WaitForFixedUpdate();
         }
 
-        rb.MovePosition(targetPos);
-
-        // Fin de dash
+        // Fin del dash: restauramos velocidad normal (detener el jugador)
         isDashing = false;
+        rb.linearVelocity = Vector2.zero;
 
-        // quitar invulnerabilidad (hook)
-        // invulnerable = false;
-
-        // cooldown
+        // Cooldown
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
     }
@@ -125,3 +121,4 @@ public class PlayerMovement : MonoBehaviour
     private void OnRanged() => Debug.Log("RANGED!");
     private void OnMenu() => Debug.Log("MENU!");
 }
+
