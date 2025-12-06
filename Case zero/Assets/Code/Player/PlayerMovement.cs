@@ -1,40 +1,127 @@
 using UnityEngine;
+using System.Collections;
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerMovement : MonoBehaviour
 {
     private Rigidbody2D rb;
     private PlayerInputController input;
+    private Collider2D playerCollider;
 
     [Header("Movement")]
-    public float moveSpeed = 5f;
+    public float moveSpeed = 10f;
+
+    [Header("Room Bounds")]
+    public BoxCollider2D roomCollider; // Asignar en Inspector
+
+    [Header("Dash Settings")]
+    public float dashDistance = 5f;
+    public float dashDuration = 0.15f; // duración del dash en segundos
+    public float dashCooldown = 1f;
+
+    private Vector2 minBounds;
+    private Vector2 maxBounds;
+    private bool canDash = true;
+    private bool isDashing = false;
+    private Vector2 dashDirection;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         input = GetComponent<PlayerInputController>();
+        playerCollider = GetComponent<Collider2D>();
     }
 
-    private void Update()
+    private void Start()
     {
-        if (input.DodgePressed)
-            Debug.Log("DODGE!");
+        if (roomCollider != null)
+        {
+            minBounds = roomCollider.bounds.min;
+            maxBounds = roomCollider.bounds.max;
+        }
 
-        if (input.ParryPressed)
-            Debug.Log("PARRY!");
-
-        if (input.MeleePressed)
-            Debug.Log("MELEE!");
-
-        if (input.RangedPressed)
-            Debug.Log("RANGED!");
-
-        if (input.MenuPressed)
-            Debug.Log("MENU!");
+        // Suscribirse a eventos de input
+        input.inputActions.Gameplay.Dodge.performed += ctx => OnDodge();
+        input.inputActions.Gameplay.Parry.performed += ctx => OnParry();
+        input.inputActions.Gameplay.MeleeAttack.performed += ctx => OnMelee();
+        input.inputActions.Gameplay.RangedAttack.performed += ctx => OnRanged();
+        input.inputActions.Ui.InGameMenu.performed += ctx => OnMenu();
     }
 
     private void FixedUpdate()
     {
+        if (!isDashing)
+        {
+            MovePlayer();
+        }
+        ClampToRoomBounds();
+    }
+
+    // Mueve al jugador usando MovePosition
+    private void MovePlayer()
+    {
         rb.linearVelocity = input.MoveInput * moveSpeed;
     }
+
+    // Impide que el jugador salga de los límites de la sala
+    private void ClampToRoomBounds()
+    {
+        if (roomCollider == null) return;
+
+        float halfW = playerCollider.bounds.extents.x;
+        float halfH = playerCollider.bounds.extents.y;
+
+        float clampedX = Mathf.Clamp(rb.position.x, minBounds.x + halfW, maxBounds.x - halfW);
+        float clampedY = Mathf.Clamp(rb.position.y, minBounds.y + halfH, maxBounds.y - halfH);
+
+        rb.position = new Vector2(clampedX, clampedY);
+    }
+
+    // MÉTODOS DE ACCIÓN
+    private void OnDodge()
+    {
+        if (canDash && !isDashing && input.MoveInput != Vector2.zero)
+        {
+            Debug.Log("DODGED!");
+            dashDirection = input.MoveInput.normalized;
+            StartCoroutine(DashRoutine());
+        }
+    }
+
+    private IEnumerator DashRoutine()
+    {
+        canDash = false;
+        isDashing = true;
+
+        // Preparar invulnerabilidad aquí (hook)
+        // invulnerable = true;
+
+        Vector2 startPos = rb.position;
+        Vector2 targetPos = startPos + dashDirection * dashDistance;
+        float elapsed = 0f;
+
+        while (elapsed < dashDuration)
+        {
+            rb.MovePosition(Vector2.Lerp(startPos, targetPos, elapsed / dashDuration));
+            elapsed += Time.fixedDeltaTime;
+            yield return new WaitForFixedUpdate();
+        }
+
+        rb.MovePosition(targetPos);
+
+        // Fin de dash
+        isDashing = false;
+
+        // quitar invulnerabilidad (hook)
+        // invulnerable = false;
+
+        // cooldown
+        yield return new WaitForSeconds(dashCooldown);
+        canDash = true;
+    }
+
+    private void OnParry() => Debug.Log("PARRY!");
+    private void OnMelee() => Debug.Log("MELEE!");
+    private void OnRanged() => Debug.Log("RANGED!");
+    private void OnMenu() => Debug.Log("MENU!");
 }

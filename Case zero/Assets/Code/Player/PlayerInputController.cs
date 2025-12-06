@@ -1,12 +1,13 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+/*controla los inputs del player*/
 public class PlayerInputController : MonoBehaviour
 {
-    // Reference to the generated InputActions
-    private PlayerInputActions inputActions;
+    
+    public PlayerInputActions inputActions;
 
-    // Input variables exposed for other systems
+    
     public Vector2 MoveInput { get; private set; }
     public bool DodgePressed { get; private set; }
     public bool ParryPressed { get; private set; }
@@ -16,7 +17,6 @@ public class PlayerInputController : MonoBehaviour
 
     private void Awake()
     {
-        // Instantiate and enable input actions
         inputActions = new PlayerInputActions();
     }
 
@@ -50,7 +50,7 @@ public class PlayerInputController : MonoBehaviour
         inputActions.Disable();
     }
 
-    // Move returns a Vector2 — this is the main difference
+    
     private void OnMove(InputAction.CallbackContext context)
     {
         MoveInput = context.ReadValue<Vector2>();
