@@ -1,5 +1,6 @@
 using UnityEngine;
 
+/*como se mueve la camara conforme se mueve el jugador por la sala*/
 public class CameraFollow : MonoBehaviour
 {
     public Transform target; // Player

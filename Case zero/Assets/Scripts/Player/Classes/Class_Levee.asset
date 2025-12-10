@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26d01a31a3ca83947a31e05ac90df193, type: 3}
+  m_Name: Class_Levee
+  m_EditorClassIdentifier: Assembly-CSharp::SOPlayerClass
+  vida: 100
+  energia: 50
+  "da\xF1oCaC": 10
+  "da\xF1oDist": 15
+  critChance: 20
+  critDamage: 200
+  moveSpeed: 10
+  atkSpeedCaC: 1
+  atkSpeedDist: 1
+  municionInicial: 20
+  parryMultiplier: 3
+  estabilidadMultiplier: 1.5
+  dodgeSpeed: 1
+  energiaRegen: 0
+  saludRegen: 0
+  lifestealPercent: 0
+  lifestealFlat: 0
+  alcanceCaC: 1
+  nivelInicial: 1
+  experienciaInicial: 0
+  oroInicial: 0
+  maxHp: 100
+  maxStamina: 50
+  pasivaPrefab: {fileID: 0}
