@@ -7,14 +7,12 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody2D rb;
     private PlayerInputController input;
     private Collider2D playerCollider;
-
-    [Header("Movement")]
-    public float moveSpeed = 10f;
+    
+    private PlayerStats stats;
 
     [Header("Room Bounds")]
     public BoxCollider2D roomCollider; // Asignar en Inspector
-
-    [Header("Dash Settings")]
+    
     [Header("Dash Settings")]
     public float dashMultiplier = 3f;  // Cuántas veces más rápido que la velocidad normal
     public float dashDuration = 0.15f; // duración del dash en segundos
@@ -31,6 +29,7 @@ public class PlayerMovement : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         input = GetComponent<PlayerInputController>();
         playerCollider = GetComponent<Collider2D>();
+        stats = GetComponent<PlayerStats>(); 
     }
 
     private void Start()
@@ -61,7 +60,7 @@ public class PlayerMovement : MonoBehaviour
     // Mueve al jugador usando MovePosition
     private void MovePlayer()
     {
-        rb.linearVelocity = input.MoveInput * moveSpeed;
+        rb.linearVelocity = input.MoveInput * stats.MoveSpeed.Current;
     }
 
     // Impide que el jugador salga de los límites de la sala
@@ -102,12 +101,12 @@ public class PlayerMovement : MonoBehaviour
         while (elapsed < dashDuration)
         {
             // Durante el dash, ignoramos input normal
-            rb.linearVelocity = dashMultiplier * moveSpeed * dashDirection;
+            rb.linearVelocity = dashMultiplier * stats.MoveSpeed.Current * dashDirection;
             elapsed += Time.fixedDeltaTime;
             yield return new WaitForFixedUpdate();
         }
 
-        // Fin del dash: restauramos velocidad normal (detener el jugador)
+        // Fin del dash: restauramos velocidad normal
         isDashing = false;
         rb.linearVelocity = Vector2.zero;
 
