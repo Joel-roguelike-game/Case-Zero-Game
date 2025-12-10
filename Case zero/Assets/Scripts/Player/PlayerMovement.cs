@@ -60,7 +60,7 @@ public class PlayerMovement : MonoBehaviour
     // Mueve al jugador usando MovePosition
     private void MovePlayer()
     {
-        rb.linearVelocity = input.MoveInput * stats.MoveSpeed.Current;
+        rb.linearVelocity = input.MoveInput * stats.moveSpeed.Current;
     }
 
     // Impide que el jugador salga de los límites de la sala
@@ -101,7 +101,7 @@ public class PlayerMovement : MonoBehaviour
         while (elapsed < dashDuration)
         {
             // Durante el dash, ignoramos input normal
-            rb.linearVelocity = dashMultiplier * stats.MoveSpeed.Current * dashDirection;
+            rb.linearVelocity = dashMultiplier * stats.moveSpeed.Current * dashDirection;
             elapsed += Time.fixedDeltaTime;
             yield return new WaitForFixedUpdate();
         }
