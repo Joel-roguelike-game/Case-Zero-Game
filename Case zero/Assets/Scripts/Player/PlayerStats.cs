@@ -4,7 +4,7 @@ using UnityEngine;
 public class PlayerStats : MonoBehaviour
 {
     [Header("Clase (ScriptableObject base)")]
-    public SOPlayerClass clase; // asignar el SO de la clase en el inspector o cargar en runtime
+    public SOPlayerClass pClass; // asignar el SO de la clase en el inspector o cargar en runtime
 
     // Estadísticas (Base = de SO, Current = en run)
     public StatValue maxHP;
@@ -40,19 +40,17 @@ public class PlayerStats : MonoBehaviour
 
     private void Awake()
     {
-        if (clase != null)
-            CargarClase(clase);
+        if (pClass != null)
+            LoadClass(pClass);
     }
 
     /// <summary>
     /// Inicializa las StatValues y variables desde el ScriptableObject de la clase.
     /// Llamar al inicio de la run o al seleccionar clase.
     /// </summary>
-    public void CargarClase(SOPlayerClass data)
+    public void LoadClass(SOPlayerClass data)
     {
-        if (data == null) return;
-
-        clase = data;
+        pClass = data;
 
         maxHP = new StatValue(data.maxHP);
         maxStamina = new StatValue(data.maxStamina);
@@ -77,15 +75,14 @@ public class PlayerStats : MonoBehaviour
         level = data.level;
         xP = data.xP;
         gold = data.gold;
-        currentHp = data.currentHp;
-        currentStamina = data.currentStamina;
-        
-        // Instanciar la pasiva (si existe)
+
+        // HP y stamina siempre empiezan al máximo del valor actual
+        currentHp = maxHP.Base;
+        currentStamina = maxStamina.Base;
+
+        // Instanciar pasiva
         if (passiveInstance != null) Destroy(passiveInstance);
         if (data.pasivaPrefab != null)
-        {
             passiveInstance = Instantiate(data.pasivaPrefab, transform);
-            // la pasiva puede buscar PlayerStats en OnEnable !!!
-        }
     }
 }

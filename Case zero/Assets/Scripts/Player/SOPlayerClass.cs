@@ -5,7 +5,7 @@ public class SOPlayerClass : ScriptableObject
 {
     [Header("Stats Base")]
     public float maxHP = 100f;
-    public float maxStamina = 50f; // stamina base
+    public float maxStamina = 50f;
     public float caCDmg = 10f;
     public float distDmg = 10f;
     public float critChance = 10f;
@@ -25,13 +25,11 @@ public class SOPlayerClass : ScriptableObject
     public float lifestealFlat = 0f;
     public float caCRange = 1f;
 
-    [Header("XP / Oro")]
+    [Header("XP / Oro Base")]
     public int level = 1;
     public int xP = 0;
-    public float currentHp;
-    public int gold = 0;        
-    public float currentStamina = 50f;    
+    public int gold = 0;
 
     [Header("Pasiva")]
-    public GameObject pasivaPrefab; // prefab con el MonoBehaviour de la pasiva
+    public GameObject pasivaPrefab;
 }
