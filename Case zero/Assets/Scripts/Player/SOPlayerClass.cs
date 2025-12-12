@@ -4,6 +4,10 @@ using UnityEngine;
 public class SOPlayerClass : ScriptableObject
 {
     [Header("Stats Base")]
+    public SOWeapon weaponMelee;
+    public SOWeapon weaponRanged;
+    
+    [Header("Stats Base")]
     public float maxHP = 100f;
     public float maxStamina = 50f;
     public float caCDmg = 10f;

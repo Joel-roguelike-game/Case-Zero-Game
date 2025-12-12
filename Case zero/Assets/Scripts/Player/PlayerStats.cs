@@ -6,6 +6,10 @@ public class PlayerStats : MonoBehaviour
     [Header("Clase (ScriptableObject base)")]
     public SOPlayerClass pClass; // asignar el SO de la clase en el inspector o cargar en runtime
 
+    //armas de la clase actuales
+    public SOWeapon weaponMelee;
+    public SOWeapon weaponRanged;
+    
     // Estadísticas (Base = de SO, Current = en run)
     public StatValue maxHP;
     public StatValue maxStamina;
@@ -51,6 +55,9 @@ public class PlayerStats : MonoBehaviour
     public void LoadClass(SOPlayerClass data)
     {
         pClass = data;
+        
+        weaponMelee = data.weaponMelee;
+        weaponRanged = data.weaponRanged;
 
         maxHP = new StatValue(data.maxHP);
         maxStamina = new StatValue(data.maxStamina);
