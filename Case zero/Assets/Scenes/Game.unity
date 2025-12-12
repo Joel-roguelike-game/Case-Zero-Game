@@ -376,7 +376,7 @@ GameObject:
   - component: {fileID: 590957482}
   m_Layer: 0
   m_Name: Limits
-  m_TagString: Untagged
+  m_TagString: MapBoundary
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

@@ -27,7 +27,20 @@ public class Projectile : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // TODO: aplicar daño al enemigo aquí
-        Destroy(gameObject);
+        // Destruye proyectiles al impactar enemigos o salir de límites
+        if(other.CompareTag("Enemy"))
+        {
+            Destroy(gameObject);
+        }
     }
+    
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        // Destruye proyectiles al impactar enemigos o salir de límites
+        if(other.CompareTag("MapBoundary"))
+        {
+            Destroy(gameObject);
+        }
+    }
+
 }
