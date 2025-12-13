@@ -21,7 +21,10 @@ public class SOWeapon : ScriptableObject
 
     [Tooltip("Daño plano mínimo que siempre inflige el arma")]
     public float flatDamage = 5f;
-
+    
+    [Tooltip("Cantidad fija de estabilidad que rompe esta arma")]
+    public float stabilityBreak = 10f;
+    
     [Tooltip("Velocidad de atq por segundo")]
     public float attackSpeed = 1f;
 
