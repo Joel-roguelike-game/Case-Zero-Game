@@ -16,6 +16,8 @@ GameObject:
   - component: {fileID: 6716182765470869805}
   - component: {fileID: 1190756214977489539}
   - component: {fileID: 1115671501527194898}
+  - component: {fileID: 6511122755803856611}
+  - component: {fileID: 6896420111910929919}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -263,11 +265,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 159221ee36af7b34786ce9deb32b536b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
-  clase: {fileID: 11400000, guid: d3d305b9a57499741b16e05978d1ad34, type: 2}
-  hp:
+  pClass: {fileID: 11400000, guid: d3d305b9a57499741b16e05978d1ad34, type: 2}
+  weaponMelee: {fileID: 0}
+  weaponRanged: {fileID: 0}
+  maxHP:
     Base: 0
     Current: 0
-  stamina:
+  maxStamina:
     Base: 0
     Current: 0
   caCDmg:
@@ -318,8 +322,35 @@ MonoBehaviour:
   caCRange:
     Base: 0
     Current: 0
-  nivel: 0
+  level: 0
   xP: 0
-  maxHp: 0
-  oro: 0
-  MaxStamina: 0
+  currentHp: 0
+  gold: 0
+  currentStamina: 0
+--- !u!114 &6511122755803856611
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2504377609101236755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fcbca584f7be3a74f9e6dd447d2991bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RangedShooter
+  firePoint: {fileID: 0}
+--- !u!114 &6896420111910929919
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2504377609101236755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d356a8d1855fe641ba88434ded23114, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponHandler
+  stats: {fileID: 0}
+  firePoint: {fileID: 0}

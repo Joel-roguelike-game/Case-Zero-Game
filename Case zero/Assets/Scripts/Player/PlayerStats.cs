@@ -4,11 +4,15 @@ using UnityEngine;
 public class PlayerStats : MonoBehaviour
 {
     [Header("Clase (ScriptableObject base)")]
-    public SOPlayerClass clase; // asignar el SO de la clase en el inspector o cargar en runtime
+    public SOPlayerClass pClass; // asignar el SO de la clase en el inspector o cargar en runtime
 
+    //armas de la clase actuales
+    public SOWeapon weaponMelee;
+    public SOWeapon weaponRanged;
+    
     // Estadísticas (Base = de SO, Current = en run)
-    public StatValue hp;
-    public StatValue stamina;      // energía actual (cap = MaxStamina)
+    public StatValue maxHP;
+    public StatValue maxStamina;
     public StatValue caCDmg;
     public StatValue distDmg;
     public StatValue critChance;
@@ -29,70 +33,63 @@ public class PlayerStats : MonoBehaviour
     public StatValue caCRange;
 
     // Progresión
-    public int nivel;
+    public int level;
     public float xP;       // XP actual
-    public float maxHp;    //  Vida maxima actual
-    public int oro;
-
-    // Tope de stamina
-    public float MaxStamina; // base para capacidad de stamina (se sincroniza con Stamina.Base en CargarClase)
+    public float currentHp;    //  Vida  actual
+    public int gold;
+    public float currentStamina; // stamina actual 
 
     // Pasiva instanciada como child (opcional)
     private GameObject passiveInstance;
 
     private void Awake()
     {
-        if (clase != null)
-            CargarClase(clase);
+        if (pClass != null)
+            LoadClass(pClass);
     }
 
     /// <summary>
     /// Inicializa las StatValues y variables desde el ScriptableObject de la clase.
     /// Llamar al inicio de la run o al seleccionar clase.
     /// </summary>
-    public void CargarClase(SOPlayerClass data)
+    public void LoadClass(SOPlayerClass data)
     {
-        if (data == null) return;
+        pClass = data;
+        
+        weaponMelee = data.weaponMelee;
+        weaponRanged = data.weaponRanged;
 
-        clase = data;
-
-        hp = new StatValue(data.vida);
-        stamina = new StatValue(data.energia);
-        caCDmg = new StatValue(data.dañoCaC);
-        distDmg = new StatValue(data.dañoDist);
+        maxHP = new StatValue(data.maxHP);
+        maxStamina = new StatValue(data.maxStamina);
+        caCDmg = new StatValue(data.caCDmg);
+        distDmg = new StatValue(data.distDmg);
         critChance = new StatValue(data.critChance);
         critDamage = new StatValue(data.critDamage);
         moveSpeed = new StatValue(data.moveSpeed);
         atkSpeedCaC = new StatValue(data.atkSpeedCaC);
         atkSpeedDist = new StatValue(data.atkSpeedDist);
-        actualAmmo = new StatValue(data.municionInicial);
+        actualAmmo = new StatValue(data.actualAmmo);
 
         parryMultiplier = new StatValue(data.parryMultiplier);
-        stabilityMultiplier = new StatValue(data.estabilidadMultiplier);
+        stabilityMultiplier = new StatValue(data.stabilityMultiplier);
         dodgeSpeed = new StatValue(data.dodgeSpeed);
-        staminaRegen = new StatValue(data.energiaRegen);
-        hpRegen = new StatValue(data.saludRegen);
+        staminaRegen = new StatValue(data.staminaRegen);
+        hpRegen = new StatValue(data.hpRegen);
         lifestealPercent = new StatValue(data.lifestealPercent);
         lifestealFlat = new StatValue(data.lifestealFlat);
-        caCRange = new StatValue(data.alcanceCaC);
+        caCRange = new StatValue(data.caCRange);
 
-        nivel = data.nivelInicial;
-        xP = data.experienciaInicial;
-        oro = data.oroInicial;
+        level = data.level;
+        xP = data.xP;
+        gold = data.gold;
 
-        maxHp = data.maxHp;
-        MaxStamina = data.maxStamina;
+        // HP y stamina siempre empiezan al máximo del valor actual
+        currentHp = maxHP.Base;
+        currentStamina = maxStamina.Base;
 
-        // sincroniza Stamina.Base con MaxStamina por si el SO lo define distinto
-        stamina.Base = MaxStamina;
-        stamina.Current = Mathf.Min(stamina.Current, stamina.Base);
-
-        // Instanciar la pasiva (si existe)
+        // Instanciar pasiva
         if (passiveInstance != null) Destroy(passiveInstance);
         if (data.pasivaPrefab != null)
-        {
             passiveInstance = Instantiate(data.pasivaPrefab, transform);
-            // la pasiva puede buscar PlayerStats en OnEnable !!!
-        }
     }
 }

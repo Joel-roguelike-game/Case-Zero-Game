@@ -12,27 +12,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26d01a31a3ca83947a31e05ac90df193, type: 3}
   m_Name: Class_Levee
   m_EditorClassIdentifier: Assembly-CSharp::SOPlayerClass
-  vida: 100
-  energia: 50
-  "da\xF1oCaC": 10
-  "da\xF1oDist": 15
+  weaponMelee: {fileID: 11400000, guid: 03ff85db176b39743ab17a8dee2aee57, type: 2}
+  weaponRanged: {fileID: 11400000, guid: b57ff3c52d5dcb947a171bc39392e2fd, type: 2}
+  maxHP: 100
+  maxStamina: 50
+  caCDmg: 10
+  distDmg: 10
   critChance: 20
   critDamage: 200
   moveSpeed: 10
   atkSpeedCaC: 1
   atkSpeedDist: 1
-  municionInicial: 20
+  actualAmmo: 20
   parryMultiplier: 3
-  estabilidadMultiplier: 1.5
+  stabilityMultiplier: 1.5
   dodgeSpeed: 1
-  energiaRegen: 0
-  saludRegen: 0
+  staminaRegen: 0
+  hpRegen: 0
   lifestealPercent: 0
   lifestealFlat: 0
-  alcanceCaC: 1
-  nivelInicial: 1
-  experienciaInicial: 0
-  oroInicial: 0
-  maxHp: 100
-  maxStamina: 50
+  caCRange: 1
+  level: 1
+  xP: 0
+  gold: 0
   pasivaPrefab: {fileID: 0}
