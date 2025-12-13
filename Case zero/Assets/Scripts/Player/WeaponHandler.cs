@@ -3,9 +3,10 @@ using UnityEngine.InputSystem;
 
 /*
  Gestiona ataques melee y ranged del jugador.
- Calcula firePoint dinámico según el borde del collider y la dirección del ratón.
- Maneja ataque continuo según velocidad de ataque real.
- Ignora colisiones entre jugador y melee slash.
+ - Ataque continuo manteniendo pulsado
+ - Cadencia REAL basada en stats
+ - Sin disparos dobles (Time.time)
+ - Melee y ranged mutuamente excluyentes
 */
 public class WeaponHandler : MonoBehaviour
 {
@@ -14,59 +15,48 @@ public class WeaponHandler : MonoBehaviour
     private Camera cam;
     private PlayerInputController inputController;
 
-    private float meleeCooldownTimer = 0f;
-    private float rangedCooldownTimer = 0f;
-
-    private bool meleeHeld;
-    private bool rangedHeld;
+    private float nextAttackTime = 0f;
 
     private void Awake()
     {
         stats = GetComponent<PlayerStats>();
         playerCollider = GetComponent<Collider2D>();
-        cam = Camera.main;
         inputController = GetComponent<PlayerInputController>();
-        if(playerCollider == null) Debug.LogError("WeaponHandler: No Collider2D found on this GameObject!");
-        if(stats == null) Debug.LogError("WeaponHandler: No PlayerStats found on this GameObject!");
-        
+        cam = Camera.main;
     }
-    
-    private void Start()
-    {
-        if(inputController == null) inputController = GetComponent<PlayerInputController>();
-        if(inputController.inputActions == null)
-        {
-            Debug.LogError("WeaponHandler: inputActions not initialized!");
-            return;
-        }
-
-        // Suscribir eventos, aqui puesto que el orden de awakes no esta garantizado
-        inputController.inputActions.Gameplay.MeleeAttack.performed += ctx => meleeHeld = true;
-        inputController.inputActions.Gameplay.MeleeAttack.canceled += ctx => meleeHeld = false;
-
-        inputController.inputActions.Gameplay.RangedAttack.performed += ctx => rangedHeld = true;
-        inputController.inputActions.Gameplay.RangedAttack.canceled += ctx => rangedHeld = false;
-    }
-
 
     private void Update()
     {
-        // Ataque cuerpo a cuerpo
-        if (meleeHeld && meleeCooldownTimer <= 0f)
+        if (Time.time < nextAttackTime)
+            return;
+
+        bool meleeHeld  = inputController.inputActions.Gameplay.MeleeAttack.ReadValue<float>() > 0.1f;
+        bool rangedHeld = inputController.inputActions.Gameplay.RangedAttack.ReadValue<float>() > 0.1f;
+
+        // PRIORIDAD: MELEE
+        if (meleeHeld && stats.weaponMelee != null)
         {
             UseMelee();
-            meleeCooldownTimer = 1f / (stats.weaponMelee.attackSpeed * stats.atkSpeedCaC.Current);
+            nextAttackTime = Time.time + GetMeleeCooldown();
+            return;
         }
 
-        // Ataque a distancia
-        if (rangedHeld && rangedCooldownTimer <= 0f)
+        // RANGED
+        if (rangedHeld && stats.weaponRanged != null)
         {
             UseRanged();
-            rangedCooldownTimer = 1f / (stats.weaponRanged.attackSpeed * stats.atkSpeedDist.Current);
+            nextAttackTime = Time.time + GetRangedCooldown();
         }
+    }
 
-        meleeCooldownTimer -= Time.deltaTime;
-        rangedCooldownTimer -= Time.deltaTime;
+    private float GetMeleeCooldown()
+    {
+        return 1f / (stats.weaponMelee.attackSpeed * stats.atkSpeedCaC.Current);
+    }
+
+    private float GetRangedCooldown()
+    {
+        return 1f / (stats.weaponRanged.attackSpeed * stats.atkSpeedDist.Current);
     }
 
     private Vector2 GetMouseDirection()
@@ -82,39 +72,46 @@ public class WeaponHandler : MonoBehaviour
         return (Vector2)playerCollider.bounds.center + direction * radius;
     }
 
+    // ================= MELEE =================
+
     public void UseMelee()
     {
-        if (stats.weaponMelee == null) return;
-
         Vector2 dir = GetMouseDirection();
         float radius = playerCollider.bounds.extents.magnitude * stats.caCRange.Current;
-        Vector2 slashPos = (Vector2)playerCollider.bounds.center + dir * radius;
+        Vector2 pos = (Vector2)playerCollider.bounds.center + dir * radius;
 
-        GameObject slashObj = Instantiate(stats.weaponMelee.weaponPrefab, slashPos, Quaternion.identity);
+        GameObject slashObj = Instantiate(
+            stats.weaponMelee.weaponPrefab,
+            pos,
+            Quaternion.identity
+        );
+
         MeleeSlash slash = slashObj.GetComponent<MeleeSlash>();
         slash.owner = stats;
         slash.direction = dir;
 
-        // Ignorar colisión con jugador
         Collider2D slashCol = slashObj.GetComponent<Collider2D>();
         if (slashCol != null)
             Physics2D.IgnoreCollision(playerCollider, slashCol);
     }
 
+    // ================= RANGED =================
+
     public void UseRanged()
     {
-        if (stats.weaponRanged == null) return;
-        if (stats.actualAmmo.Current <= 0) return;
+        if (stats.actualAmmo.Current <= 0)
+            return;
 
         Vector2 baseDir = GetMouseDirection();
-        float spread = GetSpread(stats.weaponRanged);
 
         if (stats.weaponRanged.weaponName == "Escopeta")
+        {
             ShootShotgun(baseDir);
+        }
         else
         {
-            Vector2 dirFinal = ApplySpread(baseDir, spread);
-            ShootProjectile(stats.weaponRanged, dirFinal, 1f);
+            Vector2 dir = ApplySpread(baseDir, GetSpread(stats.weaponRanged));
+            ShootProjectile(stats.weaponRanged, dir, 1f);
         }
 
         stats.actualAmmo.Current--;
@@ -122,13 +119,15 @@ public class WeaponHandler : MonoBehaviour
 
     private float GetSpread(SOWeapon weapon)
     {
-        if (weapon.weaponName == "Ballesta" || weapon.weaponName == "Rifle") return 0f;
+        if (weapon.weaponName == "Ballesta" || weapon.weaponName == "Rifle")
+            return 0f;
+
         return weapon.weaponName == "Escopeta" ? 45f : 15f;
     }
 
     private Vector2 ApplySpread(Vector2 dir, float spread)
     {
-        float angle = Random.Range(-spread / 2f, spread / 2f);
+        float angle = Random.Range(-spread * 0.5f, spread * 0.5f);
         return Quaternion.Euler(0, 0, angle) * dir;
     }
 
@@ -144,7 +143,13 @@ public class WeaponHandler : MonoBehaviour
     private void ShootProjectile(SOWeapon weapon, Vector2 direction, float dmgMultiplier)
     {
         Vector2 firePoint = GetDynamicFirePoint(direction);
-        GameObject projObj = Instantiate(weapon.weaponPrefab, firePoint, Quaternion.identity);
+
+        GameObject projObj = Instantiate(
+            weapon.weaponPrefab,
+            firePoint,
+            Quaternion.identity
+        );
+
         Projectile p = projObj.GetComponent<Projectile>();
         p.direction = direction;
         p.damageMultiplier = dmgMultiplier;

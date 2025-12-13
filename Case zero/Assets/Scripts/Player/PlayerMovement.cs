@@ -47,8 +47,6 @@ public class PlayerMovement : MonoBehaviour
         // Suscribirse a eventos de input
         input.inputActions.Gameplay.Dodge.performed += ctx => OnDodge();
         input.inputActions.Gameplay.Parry.performed += ctx => OnParry();
-        input.inputActions.Gameplay.MeleeAttack.performed += ctx => OnMelee();
-        input.inputActions.Gameplay.RangedAttack.performed += ctx => OnRanged();
         input.inputActions.Ui.InGameMenu.performed += ctx => OnMenu();
     }
 
@@ -120,8 +118,6 @@ public class PlayerMovement : MonoBehaviour
     }
 
     private void OnParry() => Debug.Log("PARRY!");
-    private void OnMelee() => weaponHandler.UseMelee();
-    private void OnRanged() => weaponHandler.UseRanged();
     private void OnMenu() => Debug.Log("MENU!");
 }
 

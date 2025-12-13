@@ -19,7 +19,7 @@ MonoBehaviour:
   flatDamage: 1.5
   attackSpeed: 7
   maxAmmo: 250
-  weaponPrefab: {fileID: 0}
+  weaponPrefab: {fileID: 1996405498597514002, guid: 550abfb4b56a37042ba097989d4699ec, type: 3}
   evolveOptionA: {fileID: 0}
   evolveOptionB: {fileID: 0}
   componentA: {fileID: 0}
