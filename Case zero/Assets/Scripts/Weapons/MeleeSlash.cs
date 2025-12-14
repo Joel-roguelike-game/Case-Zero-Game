@@ -40,16 +40,40 @@ public class MeleeSlash : MonoBehaviour
             Destroy(gameObject);
     }
 
+    private bool hasHit;
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        EnemyCombat enemy = collision.GetComponent<EnemyCombat>();
+        if (hasHit)
+            return;
+
+        EnemyCombat enemy = collision.GetComponentInParent<EnemyCombat>();
         if (enemy == null)
             return;
 
-        enemy.ReceiveHit(
-            damage,
-            stabilityBreak,
-            stabilityMultiplier
+        
+        EnemyStats enemystats = collision.GetComponentInParent<EnemyStats>();
+        if (enemystats == null)
+            return;
+        hasHit = true;
+
+        bool wasCrit;
+        float dmg = DamageCalculator.CalculatePlayerDamage(
+            owner.weaponMelee.flatDamage,
+            owner.weaponMelee.damagePercent,
+            owner.caCDmg.Current,
+            owner.critChance.Current,
+            owner.critDamage.Current,
+            false, // parry se meterá luego
+            owner.parryMultiplier.Current,
+            enemystats.stabilityBroken,
+            owner.stabilityMultiplier.Current,
+            out wasCrit
         );
+
+        enemy.ReceiveHit(dmg, owner.weaponMelee.stabilityBreak, owner.stabilityMultiplier.Current);
+
+        //DamageTextSpawner.Spawn(enemy.transform.position, dmg, wasCrit);
     }
+
 }

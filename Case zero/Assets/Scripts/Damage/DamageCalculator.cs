@@ -11,13 +11,14 @@ public static class DamageCalculator
         bool isParry,
         float parryMult,
         bool stabilityBroken,
-        float stabilityMult
+        float stabilityMult,
+        out bool wasCrit
     )
     {
-        float baseDamage = flat + (percent * playerDamage);
+        float baseDamage = flat + ((percent/100) * playerDamage);
 
-        bool crit = Random.Range(0f, 100f) <= critChance;
-        float critMultiplier = crit ? critMult / 100f : 1f;
+        wasCrit = Random.Range(0f, 100f) <= critChance;
+        float critMultiplier = wasCrit ? critMult / 100f : 1f;
 
         float extraMultiplier = Mathf.Max(
             isParry ? parryMult : 1f,

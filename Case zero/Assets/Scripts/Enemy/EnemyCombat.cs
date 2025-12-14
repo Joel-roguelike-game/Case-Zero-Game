@@ -55,6 +55,13 @@ public class EnemyCombat : MonoBehaviour
             : damage;
 
         health.TakeDamage(finalDamage);
+        
+        /*DamageTextSpawner.Instance.Spawn(
+            transform.position + Vector3.up * 0.5f,
+            finalDamage,
+            isCrit
+        );*/
+
     }
 
     /*
@@ -68,14 +75,35 @@ public class EnemyCombat : MonoBehaviour
         stats.stabilityBroken = false;
     }
     
-    private void OnCollisionEnter2D(Collision2D collision)
+    private bool canDealContactDamage = true;
+    public float contactDamageCooldown = 1f;
+
+    /*
+     * intenta dañar mientras este dentro.
+     */
+    private void OnTriggerStay2D(Collider2D other)
     {
-        if (collision.collider.CompareTag("Player"))
-        {
-            PlayerHealth ph = collision.collider.GetComponent<PlayerHealth>();
-            if (ph != null)
-                ph.TakeDamage(stats.baseDamage);
-        }
+        if (!canDealContactDamage)
+            return;
+
+        if (!other.CompareTag("Player"))
+            return;
+
+        PlayerHealth ph = other.GetComponent<PlayerHealth>();
+        if (ph == null)
+            return;
+
+        ph.TakeDamage(stats.baseDamage);
+        StartCoroutine(ContactDamageCooldown());
     }
+
+    private IEnumerator ContactDamageCooldown()
+    {
+        canDealContactDamage = false;
+        yield return new WaitForSeconds(contactDamageCooldown);
+        canDealContactDamage = true;
+    }
+
+
 
 }

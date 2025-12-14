@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 95fdfbc5c847daf428e5f98f9047b19d, type: 3}
+  m_Name: DamageTextConfig
+  m_EditorClassIdentifier: Assembly-CSharp::SODamageTextConfig
+  damageTextPrefab: {fileID: 716959684195597999, guid: 186b3f43b015a6e4fb87818616e579bc, type: 3}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  normalScale: 1
+  critColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  critScale: 1.3
+  floatSpeed: 1.5
+  lifeTime: 1
