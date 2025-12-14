@@ -3,24 +3,32 @@ using UnityEngine;
 /*
  Representa un ataque cuerpo a cuerpo:
  - Se orienta hacia el ratón
- - Posee un ángulo de 90 grados
- - Escala según CaCRange del jugador
+ - Aplica daño y rotura de estabilidad
+ - Vive un tiempo corto y desaparece
 */
 public class MeleeSlash : MonoBehaviour
 {
+    [Header("Owner")]
     public PlayerStats owner;
+
+    [Header("Attack Data")]
+    public float damage;
+    public float stabilityBreak;
+    public float stabilityMultiplier;
+
     public Vector2 direction;
 
+    [Header("Lifetime")]
     public float duration = 0.15f;
     private float timer;
 
     private void Start()
     {
-        // Rotar hacia el ratón
+        // Rotar hacia la dirección del ataque
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.Euler(0, 0, angle - 45f); // slash centrado
+        transform.rotation = Quaternion.Euler(0, 0, angle - 45f);
 
-        // Escalar según alcance del jugador
+        // Escalar según rango CaC del jugador
         float range = owner.caCRange.Current;
         transform.localScale = new Vector3(range, range, 1f);
     }
@@ -34,6 +42,14 @@ public class MeleeSlash : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        // TODO: aplicar daño al enemigo
+        EnemyCombat enemy = collision.GetComponent<EnemyCombat>();
+        if (enemy == null)
+            return;
+
+        enemy.ReceiveHit(
+            damage,
+            stabilityBreak,
+            stabilityMultiplier
+        );
     }
 }

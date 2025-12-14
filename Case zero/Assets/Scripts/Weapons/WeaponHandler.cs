@@ -90,6 +90,13 @@ public class WeaponHandler : MonoBehaviour
         slash.owner = stats;
         slash.direction = dir;
 
+        slash.owner = stats;
+        slash.direction = dir;
+        
+        slash.damage = ((stats.weaponMelee.damagePercent/100) * stats.caCDmg.Current)+stats.weaponMelee.flatDamage;
+        slash.stabilityBreak = stats.weaponMelee.stabilityBreak;
+        slash.stabilityMultiplier = stats.stabilityMultiplier.Current;
+        
         Collider2D slashCol = slashObj.GetComponent<Collider2D>();
         if (slashCol != null)
             Physics2D.IgnoreCollision(playerCollider, slashCol);
@@ -136,7 +143,7 @@ public class WeaponHandler : MonoBehaviour
         for (int i = 0; i < 5; i++)
         {
             Vector2 dir = ApplySpread(baseDir, 45f);
-            ShootProjectile(stats.weaponRanged, dir, 0.2f);
+            ShootProjectile(stats.weaponRanged, dir, 1f);
         }
     }
 

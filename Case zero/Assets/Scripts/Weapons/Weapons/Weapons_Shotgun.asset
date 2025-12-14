@@ -15,9 +15,9 @@ MonoBehaviour:
   weaponName: Escopeta
   category: 1
   isEvolution: 0
-  damagePercent: 250
-  flatDamage: 20
-  stabilityBreak: 40
+  damagePercent: 48
+  flatDamage: 4
+  stabilityBreak: 8
   attackSpeed: 0.5
   maxAmmo: 50
   weaponPrefab: {fileID: 1996405498597514002, guid: 550abfb4b56a37042ba097989d4699ec, type: 3}

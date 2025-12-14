@@ -538,9 +538,13 @@ GameObject:
   - component: {fileID: 1152610109}
   - component: {fileID: 1152610108}
   - component: {fileID: 1152610107}
+  - component: {fileID: 1152610114}
+  - component: {fileID: 1152610113}
+  - component: {fileID: 1152610112}
+  - component: {fileID: 1152610111}
   m_Layer: 0
   m_Name: Bruiser
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -575,7 +579,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -606,7 +610,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDamping: 0
   m_AngularDamping: 0.05
-  m_GravityScale: 1
+  m_GravityScale: 0
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -666,7 +670,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 80
   m_Sprite: {fileID: 7482667652216324306, guid: 48e93eef0688c4a259cb0eddcd8661f7, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 0.642806, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -691,11 +695,87 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1152610111
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1152610106}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a9222bb578aa244a9bafaea375a8bf7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
+  level: 5
+  baseHealth: 100
+  baseDamage: 10
+  baseStability: 50
+  moveSpeed: 12
+  currentHealth: 0
+  currentStability: 0
+  stabilityBroken: 0
+--- !u!114 &1152610112
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1152610106}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df1f36e67a5bf3045a1a272559bd247d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyMovement
+--- !u!114 &1152610113
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1152610106}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5366c6ae301c6148b526088f29f24b6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyHealth
+--- !u!114 &1152610114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1152610106}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee7608dd419270e40a00dfa894a5f444, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyCombat
+  stabilityRegenDelay: 5
 --- !u!4 &1226447508 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5340236325723219652, guid: 6c38e9f1e6fb86b47bac454f51ccaf59, type: 3}
   m_PrefabInstance: {fileID: 2848530069347254459}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &2136262277 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2504377609101236755, guid: 6c38e9f1e6fb86b47bac454f51ccaf59, type: 3}
+  m_PrefabInstance: {fileID: 2848530069347254459}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &2136262286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2136262277}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90c8d067d601c954a9a5a14d93976462, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
+  currentHealth: 100
+  invulDuration: 1
 --- !u!1001 &2848530069347254459
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -756,7 +836,10 @@ PrefabInstance:
     - {fileID: 6511122755803856611, guid: 6c38e9f1e6fb86b47bac454f51ccaf59, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2504377609101236755, guid: 6c38e9f1e6fb86b47bac454f51ccaf59, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2136262286}
   m_SourcePrefab: {fileID: 100100000, guid: 6c38e9f1e6fb86b47bac454f51ccaf59, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
