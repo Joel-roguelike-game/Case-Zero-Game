@@ -634,6 +634,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 47fa28a7d4459694ba3efc6e4aa982e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DamageTextSpawner
+  damageTextPrefab: {fileID: 6806275082187927848, guid: 186b3f43b015a6e4fb87818616e579bc, type: 3}
   config: {fileID: 11400000, guid: a5b4f1ba97ec9f343b37fdf9583ca63f, type: 2}
 --- !u!4 &711332180
 Transform:

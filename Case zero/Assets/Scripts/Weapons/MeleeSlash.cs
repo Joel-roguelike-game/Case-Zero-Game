@@ -44,36 +44,28 @@ public class MeleeSlash : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (hasHit)
-            return;
-
-        EnemyCombat enemy = collision.GetComponentInParent<EnemyCombat>();
+        EnemyCombat enemy = collision.GetComponent<EnemyCombat>();
         if (enemy == null)
             return;
 
-        
-        EnemyStats enemystats = collision.GetComponentInParent<EnemyStats>();
-        if (enemystats == null)
-            return;
-        hasHit = true;
-
-        bool wasCrit;
-        float dmg = DamageCalculator.CalculatePlayerDamage(
+        DamageResult result = DamageCalculator.CalculatePlayerDamage(
             owner.weaponMelee.flatDamage,
             owner.weaponMelee.damagePercent,
             owner.caCDmg.Current,
             owner.critChance.Current,
             owner.critDamage.Current,
-            false, // parry se meterá luego
+            false, // parry (lo añadirás luego)
             owner.parryMultiplier.Current,
-            enemystats.stabilityBroken,
-            owner.stabilityMultiplier.Current,
-            out wasCrit
+            enemy.GetComponent<EnemyStats>().stabilityBroken,
+            owner.stabilityMultiplier.Current
         );
 
-        enemy.ReceiveHit(dmg, owner.weaponMelee.stabilityBreak, owner.stabilityMultiplier.Current);
-
-        //DamageTextSpawner.Spawn(enemy.transform.position, dmg, wasCrit);
+        enemy.ReceiveHit(
+            result,
+            stabilityBreak,
+            owner.stabilityMultiplier.Current
+        );
     }
+
 
 }

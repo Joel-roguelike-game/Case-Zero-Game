@@ -27,12 +27,13 @@ public class EnemyCombat : MonoBehaviour
     /*
      Llamado cuando el enemigo recibe un golpe del jugador.
     */
-    public void ReceiveHit(float damage, float stabilityBreak, float playerStabilityMultiplier)
+    public void ReceiveHit(
+        DamageResult result,
+        float stabilityBreak,
+        float playerStabilityMultiplier
+    )
     {
-        
-        Debug.Log("RECIBO HIT: " + damage);
-        
-        // Aplicar rotura de estabilidad
+        // -------- STABILITY --------
         if (!stats.stabilityBroken)
         {
             stats.currentStability -= stabilityBreak;
@@ -49,20 +50,21 @@ public class EnemyCombat : MonoBehaviour
             }
         }
 
-        // Daño aumentado si está rota
+        // -------- DAMAGE --------
         float finalDamage = stats.stabilityBroken
-            ? damage * playerStabilityMultiplier
-            : damage;
+            ? result.damage * playerStabilityMultiplier
+            : result.damage;
 
         health.TakeDamage(finalDamage);
-        
-        /*DamageTextSpawner.Instance.Spawn(
+
+        // -------- FEEDBACK --------
+        DamageTextSpawner.Instance.Spawn(
             transform.position + Vector3.up * 0.5f,
             finalDamage,
-            isCrit
-        );*/
-
+            result.isCrit
+        );
     }
+
 
     /*
      Regenera la estabilidad tras 5 segundos completamente.
