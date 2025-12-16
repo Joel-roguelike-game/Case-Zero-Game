@@ -13,6 +13,8 @@ public class EnemyCombat : MonoBehaviour
     private EnemyStats stats;
     private EnemyHealth health;
 
+    private DamageText activeDamageText;
+
     [Header("Stability")]
     public float stabilityRegenDelay = 5f;
 
@@ -24,45 +26,55 @@ public class EnemyCombat : MonoBehaviour
         health = GetComponent<EnemyHealth>();
     }
 
-    /*
-     Llamado cuando el enemigo recibe un golpe del jugador.
-    */
     public void ReceiveHit(
         DamageResult result,
         float stabilityBreak,
         float playerStabilityMultiplier
     )
     {
-        // -------- STABILITY --------
+        // === STABILITY ===
         if (!stats.stabilityBroken)
         {
             stats.currentStability -= stabilityBreak;
-
             if (stats.currentStability <= 0f)
             {
                 stats.currentStability = 0f;
                 stats.stabilityBroken = true;
-
-                if (stabilityRoutine != null)
-                    StopCoroutine(stabilityRoutine);
-
-                stabilityRoutine = StartCoroutine(RegenerateStability());
             }
         }
 
-        // -------- DAMAGE --------
-        float finalDamage = stats.stabilityBroken
-            ? result.damage * playerStabilityMultiplier
-            : result.damage;
-
+        float finalDamage = result.damage;
         health.TakeDamage(finalDamage);
 
-        // -------- FEEDBACK --------
-        DamageTextSpawner.Instance.Spawn(
-            transform.position + Vector3.up * 0.5f,
-            finalDamage,
-            result.isCrit
-        );
+        int dmgInt = Mathf.FloorToInt(finalDamage);
+
+        Vector3 textPos = transform.position + Vector3.up * 0.5f;
+
+        if (activeDamageText == null)
+        {
+            activeDamageText = DamageTextSpawner.Instance.Spawn(
+                textPos,
+                dmgInt,
+                result.isCrit
+            );
+        }
+        else
+        {
+            activeDamageText.SetWorldPosition(textPos);
+
+            activeDamageText.AddDamage(
+                dmgInt,
+                result.isCrit,
+                DamageTextSpawner.Instance.config
+            );
+        }
+
+    }
+
+    private void OnDestroy()
+    {
+        if (activeDamageText != null)
+            Destroy(activeDamageText.gameObject);
     }
 
 
@@ -71,10 +83,13 @@ public class EnemyCombat : MonoBehaviour
     */
     private IEnumerator RegenerateStability()
     {
+        Debug.Log("Estabilidad rota, regenerando...");
         yield return new WaitForSeconds(stabilityRegenDelay);
 
         stats.currentStability = stats.baseStability;
         stats.stabilityBroken = false;
+        Debug.Log("Estabilidad recuperada");
+
     }
     
     private bool canDealContactDamage = true;

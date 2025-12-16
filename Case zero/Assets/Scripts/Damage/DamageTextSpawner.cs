@@ -4,28 +4,22 @@ public class DamageTextSpawner : MonoBehaviour
 {
     public static DamageTextSpawner Instance;
 
-    [SerializeField] private DamageText damageTextPrefab;
-    [SerializeField] private SODamageTextConfig config;
+    public DamageText prefab;
+    public SODamageTextConfig config;
 
     private void Awake()
     {
         Instance = this;
     }
 
-    public void Spawn(Vector3 worldPos, float damage, bool isCrit)
+    public DamageText Spawn(
+        Vector3 worldPos,
+        int damage,
+        bool isCrit
+    )
     {
-        if (damageTextPrefab == null)
-        {
-            Debug.LogError("DamageTextSpawner: Prefab NULL");
-            return;
-        }
-
-        DamageText dt = Instantiate(
-            damageTextPrefab,
-            worldPos,
-            Quaternion.identity
-        );
-
-        dt.Initialize(Mathf.FloorToInt(damage), isCrit, config);
+        DamageText dt = Instantiate(prefab, worldPos, Quaternion.identity);
+        dt.Initialize(damage, isCrit, config);
+        return dt;
     }
 }

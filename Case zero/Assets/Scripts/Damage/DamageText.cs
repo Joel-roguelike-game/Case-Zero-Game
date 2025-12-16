@@ -4,9 +4,15 @@ using TMPro;
 public class DamageText : MonoBehaviour
 {
     [SerializeField] private TextMeshPro text;
-    [SerializeField] private float lifeTime = 1f;
+    private float timer;
+    private float lifetime;
+    private int accumulatedDamage;
 
-    public void Initialize(int value, bool isCrit, SODamageTextConfig config)
+    public void Initialize(
+        int damage,
+        bool isCrit,
+        SODamageTextConfig config
+    )
     {
         if (text == null)
         {
@@ -14,16 +20,48 @@ public class DamageText : MonoBehaviour
             return;
         }
 
-        if (config == null)
-        {
-            Debug.LogError("DamageText: Config es NULL");
-            return;
-        }
+        accumulatedDamage = damage;
+        lifetime = config.lifeTime;
+        timer = 0f;
 
-        text.text = value.ToString();
+        ApplyVisual(isCrit, config);
+        UpdateText();
+    }
+
+    public void AddDamage(
+        int damage,
+        bool isCrit,
+        SODamageTextConfig config
+    )
+    {
+        accumulatedDamage += damage;
+        timer = 0f; // reset lifetime
+
+        ApplyVisual(isCrit, config);
+        UpdateText();
+    }
+
+    private void ApplyVisual(bool isCrit, SODamageTextConfig config)
+    {
         text.color = isCrit ? config.critColor : config.normalColor;
         text.fontSize = isCrit ? config.critScale : config.normalScale;
-
-        Destroy(gameObject, lifeTime);
     }
+
+    private void UpdateText()
+    {
+        text.text = accumulatedDamage.ToString();
+    }
+
+    private void Update()
+    {
+        timer += Time.deltaTime;
+        if (timer >= lifetime)
+            Destroy(gameObject);
+    }
+    
+    public void SetWorldPosition(Vector3 pos)
+    {
+        transform.position = pos;
+    }
+
 }
