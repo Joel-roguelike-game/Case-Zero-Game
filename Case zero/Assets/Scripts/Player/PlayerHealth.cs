@@ -1,8 +1,9 @@
 using UnityEngine;
 using System.Collections;
+
 /*
- * Accede a la cida del jugador y gestiona el daño recibido
- * cotrola el parpadeo y la invulnerabilidad por daño del jugador.
+ * Accede a la vida del jugador y gestiona el daño recibido
+ * controla el parpadeo y la invulnerabilidad por daño del jugador.
  * controla la invulnerabilidad en parry y dash
  */
 public class PlayerHealth : MonoBehaviour
@@ -16,6 +17,7 @@ public class PlayerHealth : MonoBehaviour
 
     private bool invulnerable;
     private bool parryInvulActive;
+    private bool dashInvulActive;
 
     private void Awake()
     {
@@ -32,6 +34,7 @@ public class PlayerHealth : MonoBehaviour
             if (parryInvulActive && source != null)
             {
                 source.SetParryAffected();
+                SlowMotionController.Instance.TriggerParrySlow();
             }
 
             return;
@@ -43,33 +46,52 @@ public class PlayerHealth : MonoBehaviour
         StartCoroutine(Invulnerability(false));
     }
 
-
-    
-
-    private IEnumerator Invulnerability(bool isParry, float forcedDuration = -1f)
+    private IEnumerator Invulnerability(bool isParry, float forcedDuration = -1f, bool isDash = false)
     {
         invulnerable = true;
         parryInvulActive = isParry;
+        dashInvulActive = isDash;
 
         float duration = forcedDuration > 0f ? forcedDuration : invulDuration;
 
+        // === COLORES ===
+        if (parryInvulActive)
+            sr.color = Color.red;
+        else if (dashInvulActive)
+            sr.color = Color.yellow;
+
         float timer = 0f;
-        while (timer < duration)
+
+        // Parpadeo SOLO para daño normal
+        if (!parryInvulActive && !dashInvulActive)
         {
-            sr.enabled = !sr.enabled;
-            yield return new WaitForSeconds(blinkInterval);
-            timer += blinkInterval;
+            while (timer < duration)
+            {
+                sr.enabled = !sr.enabled;
+                yield return new WaitForSeconds(blinkInterval);
+                timer += blinkInterval;
+            }
+        }
+        else
+        {
+            yield return new WaitForSeconds(duration);
         }
 
+        // Reset
         sr.enabled = true;
+        sr.color = Color.white;
         invulnerable = false;
         parryInvulActive = false;
+        dashInvulActive = false;
     }
-    
+
     public void StartParryInvulnerability(float duration)
     {
         StartCoroutine(Invulnerability(true, duration));
     }
 
-
+    public void StartDashInvulnerability(float duration)
+    {
+        StartCoroutine(Invulnerability(false, duration, true));
+    }
 }

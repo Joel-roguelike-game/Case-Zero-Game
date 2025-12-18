@@ -97,10 +97,9 @@ public class PlayerMovement : MonoBehaviour
     {
         canDash = false;
         isDashing = true;
-
-        // Preparar invulnerabilidad aquí (hook)
-        // invulnerable = true;
         
+        GetComponent<PlayerHealth>().StartDashInvulnerability(0.3f);
+
         float elapsed = 0f;
 
         while (elapsed < dashDuration)
@@ -138,14 +137,14 @@ public class PlayerMovement : MonoBehaviour
         float originalSpeed = stats.moveSpeed.Current;
         stats.moveSpeed.Current *= 0.2f;
 
-        GetComponent<PlayerHealth>().StartParryInvulnerability(0.2f);
+        GetComponent<PlayerHealth>().StartParryInvulnerability(0.15f);
 
-        yield return new WaitForSeconds(0.2f); //duración
+        yield return new WaitForSeconds(0.15f); //duración
 
         stats.moveSpeed.Current = originalSpeed;
         isParrying = false;
 
-        yield return new WaitForSeconds(1.8f); // cooldown
+        yield return new WaitForSeconds(2.85f); // cooldown
         canParry = true;
     }
 
