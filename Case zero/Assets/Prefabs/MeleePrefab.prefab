@@ -91,6 +91,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1f27822abe4ebdb4e8f986bbede021ea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MeleeSlash
-  owner: {fileID: 0}
+  owner: {fileID: 1115671501527194898, guid: 6c38e9f1e6fb86b47bac454f51ccaf59, type: 3}
+  damage: 0
+  stabilityBreak: 0
+  stabilityMultiplier: 0
   direction: {x: 0, y: 0}
   duration: 0.15

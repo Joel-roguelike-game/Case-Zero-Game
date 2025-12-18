@@ -17,7 +17,7 @@ public class CameraFollow : MonoBehaviour
     private float halfWidth;
     private Vector2 minBounds;
     private Vector2 maxBounds;
-
+    /*Inicializa la camara y asigna sus limites de movimiento */
     private void Awake()
     {
         cam = GetComponent<Camera>();
@@ -34,7 +34,7 @@ public class CameraFollow : MonoBehaviour
             Debug.LogWarning("No hay collider de sala asignado a CameraFollow");
         }
     }
-
+    /*Actualiza la posicion */
     private void LateUpdate()
     {
         if (target == null) return;

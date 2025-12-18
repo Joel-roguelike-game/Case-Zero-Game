@@ -23,7 +23,7 @@ MonoBehaviour:
   moveSpeed: 10
   atkSpeedCaC: 1
   atkSpeedDist: 1
-  actualAmmo: 20
+  actualAmmo: 1000
   parryMultiplier: 3
   stabilityMultiplier: 1.5
   dodgeSpeed: 1

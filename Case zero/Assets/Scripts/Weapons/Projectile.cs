@@ -1,13 +1,8 @@
 using UnityEngine;
 
-/*
- Control del proyectil básico:
- - Se mueve en línea recta
- - Destruye al impactar
-*/
 public class Projectile : MonoBehaviour
 {
-    public float speed = 20f;
+    public float speed = 100f;
     public Vector2 direction;
     public float lifeTime = 3f;
 
@@ -15,6 +10,7 @@ public class Projectile : MonoBehaviour
     public PlayerStats owner;
 
     private float timer;
+    private bool hasHit;
 
     private void Update()
     {
@@ -27,20 +23,33 @@ public class Projectile : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        // Destruye proyectiles al impactar enemigos o salir de límites
-        if(other.CompareTag("Enemy"))
-        {
-            Destroy(gameObject);
-        }
-    }
-    
-    private void OnTriggerExit2D(Collider2D other)
-    {
-        // Destruye proyectiles al impactar enemigos o salir de límites
-        if(other.CompareTag("MapBoundary"))
-        {
-            Destroy(gameObject);
-        }
-    }
+        if (hasHit)
+            return;
 
+        EnemyCombat enemy = other.GetComponentInParent<EnemyCombat>();
+        if (enemy == null)
+            return;
+
+        hasHit = true;
+
+        DamageResult result = DamageCalculator.CalculatePlayerDamage(
+            owner.weaponRanged.flatDamage,
+            owner.weaponRanged.damagePercent,
+            owner.distDmg.Current,
+            owner.critChance.Current,
+            owner.critDamage.Current,
+            false, // parry
+            owner.parryMultiplier.Current,
+            enemy.GetComponent<EnemyStats>().stabilityBroken,
+            owner.stabilityMultiplier.Current
+        );
+
+        enemy.ReceiveHit(
+            result,
+            owner.weaponRanged.stabilityBreak,
+            owner.stabilityMultiplier.Current
+        );
+
+        Destroy(gameObject);
+    }
 }

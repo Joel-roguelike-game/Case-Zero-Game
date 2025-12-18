@@ -17,6 +17,7 @@ MonoBehaviour:
   isEvolution: 0
   damagePercent: 125
   flatDamage: 12
+  stabilityBreak: 20
   attackSpeed: 1
   maxAmmo: 100
   weaponPrefab: {fileID: 1996405498597514002, guid: 550abfb4b56a37042ba097989d4699ec, type: 3}
