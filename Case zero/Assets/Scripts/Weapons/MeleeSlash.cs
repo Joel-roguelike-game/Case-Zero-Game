@@ -48,13 +48,15 @@ public class MeleeSlash : MonoBehaviour
         if (enemy == null)
             return;
 
+        bool isParry = enemy.ConsumeParryAffected();
+
         DamageResult result = DamageCalculator.CalculatePlayerDamage(
             owner.weaponMelee.flatDamage,
             owner.weaponMelee.damagePercent,
             owner.caCDmg.Current,
             owner.critChance.Current,
             owner.critDamage.Current,
-            false, // parry (lo añadirás luego)
+            isParry,
             owner.parryMultiplier.Current,
             enemy.GetComponent<EnemyStats>().stabilityBroken,
             owner.stabilityMultiplier.Current
@@ -65,6 +67,7 @@ public class MeleeSlash : MonoBehaviour
             stabilityBreak,
             owner.stabilityMultiplier.Current
         );
+
     }
 
 
