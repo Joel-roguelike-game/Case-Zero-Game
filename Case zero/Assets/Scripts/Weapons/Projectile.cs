@@ -32,13 +32,15 @@ public class Projectile : MonoBehaviour
 
         hasHit = true;
 
+        bool isParry = enemy.ConsumeParryAffected();
+
         DamageResult result = DamageCalculator.CalculatePlayerDamage(
             owner.weaponRanged.flatDamage,
             owner.weaponRanged.damagePercent,
             owner.distDmg.Current,
             owner.critChance.Current,
             owner.critDamage.Current,
-            false, // parry
+            isParry,
             owner.parryMultiplier.Current,
             enemy.GetComponent<EnemyStats>().stabilityBroken,
             owner.stabilityMultiplier.Current
@@ -49,6 +51,7 @@ public class Projectile : MonoBehaviour
             owner.weaponRanged.stabilityBreak,
             owner.stabilityMultiplier.Current
         );
+
 
         Destroy(gameObject);
     }

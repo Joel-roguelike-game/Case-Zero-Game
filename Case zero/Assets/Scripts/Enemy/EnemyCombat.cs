@@ -7,6 +7,7 @@ using System.Collections;
  - Rotura de estabilidad
  - Daño aumentado durante rotura
  - Ataque del Bruiser
+ - gestiona el estado de parry del enemigo
 */
 public class EnemyCombat : MonoBehaviour
 {
@@ -19,6 +20,8 @@ public class EnemyCombat : MonoBehaviour
     public float stabilityRegenDelay = 5f;
 
     private Coroutine stabilityRoutine;
+    private bool parryAffected;
+
 
     private void Awake()
     {
@@ -109,8 +112,7 @@ public class EnemyCombat : MonoBehaviour
         PlayerHealth ph = other.GetComponent<PlayerHealth>();
         if (ph == null)
             return;
-
-        ph.TakeDamage(stats.baseDamage);
+        ph.TakeDamage(stats.baseDamage, this);
         StartCoroutine(ContactDamageCooldown());
     }
 
@@ -119,6 +121,22 @@ public class EnemyCombat : MonoBehaviour
         canDealContactDamage = false;
         yield return new WaitForSeconds(contactDamageCooldown);
         canDealContactDamage = true;
+    }
+    //logica para el parry
+    public void SetParryAffected()
+    {
+        parryAffected = true;
+        Debug.Log("ENEMIGO AFECTADO POR PARRY");
+    }
+
+    public bool ConsumeParryAffected()
+    {
+        if (!parryAffected)
+            return false;
+
+        parryAffected = false;
+        Debug.Log("PARRY CONSUMIDO EN ESTE GOLPE");
+        return true;
     }
 
 
