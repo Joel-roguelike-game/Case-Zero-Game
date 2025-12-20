@@ -17,24 +17,20 @@ public class EnemyShooterAI : MonoBehaviour
 
     private void Awake()
     {
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        player = GameObject.FindGameObjectWithTag("Player")?.transform;
         stats = GetComponent<EnemyStats>();
     }
 
     private void Update()
     {
-        if (player == null) return;
+        if (player == null || stats == null) return;
 
         float dist = Vector2.Distance(transform.position, player.position);
 
         if (dist > stopDistance)
-        {
             MoveTowardsPlayer();
-        }
         else
-        {
             TryShoot();
-        }
     }
 
     private void MoveTowardsPlayer()
@@ -47,11 +43,16 @@ public class EnemyShooterAI : MonoBehaviour
     {
         if (Time.time < nextShootTime) return;
 
-        Vector2 targetPos = player.position;
-        Vector2 dir = (targetPos - (Vector2)transform.position).normalized;
+        Vector2 dir = (player.position - transform.position).normalized;
 
-        GameObject proj = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
-        proj.GetComponent<Projectile>().direction = dir;
+        GameObject proj = Instantiate(
+            projectilePrefab,
+            transform.position,
+            Quaternion.identity
+        );
+
+        EnemyProjectile ep = proj.GetComponent<EnemyProjectile>();
+        ep.Init(dir, stats.baseDamage);
 
         nextShootTime = Time.time + shootCooldown;
     }

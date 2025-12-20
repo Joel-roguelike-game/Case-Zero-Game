@@ -35,6 +35,9 @@ public class EnemyCombat : MonoBehaviour
         float playerStabilityMultiplier
     )
     {
+        if (health == null || health.isDead)
+            return;
+
         // === STABILITY ===
         if (!stats.stabilityBroken)
         {

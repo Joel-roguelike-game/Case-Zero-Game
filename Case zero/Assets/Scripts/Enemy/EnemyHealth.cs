@@ -9,6 +9,9 @@ public class EnemyHealth : MonoBehaviour
 {
     private EnemyStats stats;
     private SpriteRenderer sr;
+    
+    public bool isDead { get; private set; }
+
 
     private void Awake()
     {
@@ -18,14 +21,21 @@ public class EnemyHealth : MonoBehaviour
 
     public void TakeDamage(float amount)
     {
+        if (isDead) return;
+
         stats.currentHealth -= amount;
 
         if (stats.currentHealth <= 0f)
         {
+            isDead = true;
             StartCoroutine(Die());
-            GetComponent<EnemyCombat>().enabled = false;
-            GetComponent<EnemyMovement>().enabled = false;
-            
+
+            EnemyCombat ec = GetComponent<EnemyCombat>();
+            if (ec != null) ec.enabled = false;
+
+            EnemyMovement em = GetComponent<EnemyMovement>();
+            if (em != null) em.enabled = false;
+
             Rigidbody2D rb = GetComponent<Rigidbody2D>();
             if (rb != null)
                 rb.linearVelocity = Vector2.zero;
@@ -35,6 +45,7 @@ public class EnemyHealth : MonoBehaviour
                 col.enabled = false;
         }
     }
+
 
     private IEnumerator Die()
     {

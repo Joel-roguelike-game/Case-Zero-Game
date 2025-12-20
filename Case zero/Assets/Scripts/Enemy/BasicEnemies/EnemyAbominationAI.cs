@@ -1,5 +1,7 @@
+using System;
 using UnityEngine;
 using System.Collections;
+using Random = UnityEngine.Random;
 
 public class EnemyAbominationAI : MonoBehaviour
 {
@@ -12,11 +14,20 @@ public class EnemyAbominationAI : MonoBehaviour
     private Transform player;
     private EnemyStats stats;
     private bool attacking;
+    //Ayuda a saber cuando parar el dash
+    private bool isDashing;
+    private Vector2 dashDirection;
+    private Rigidbody2D rb;
+    //indicador visual del ataque AoE
+    public GameObject aoeIndicatorPrefab;
+    private GameObject aoeIndicator;
+
 
     private void Awake()
     {
         player = GameObject.FindGameObjectWithTag("Player").transform;
         stats = GetComponent<EnemyStats>();
+        rb = GetComponent<Rigidbody2D>();
     }
 
     private void Update()
@@ -34,6 +45,13 @@ public class EnemyAbominationAI : MonoBehaviour
             StartCoroutine(RandomAttack());
         }
     }
+    
+    private void FixedUpdate()
+    {
+        if (isDashing)
+            rb.linearVelocity = dashDirection * stats.moveSpeed * dashMultiplier;
+    }
+
 
     private void MoveTowardsPlayer()
     {
@@ -56,34 +74,92 @@ public class EnemyAbominationAI : MonoBehaviour
 
     private IEnumerator DashAttack()
     {
-        Vector2 targetPos = player.position;
         yield return new WaitForSeconds(chargeTime);
 
-        Vector2 dir = (targetPos - (Vector2)transform.position).normalized;
-        float t = 0.3f;
-
-        while (t > 0f)
-        {
-            transform.position += (Vector3)(dir * stats.moveSpeed * dashMultiplier * Time.deltaTime);
-            t -= Time.deltaTime;
-            yield return null;
-        }
+        dashDirection = (player.position - transform.position).normalized;
+        isDashing = true;
     }
+
 
     private IEnumerator AoeAttack()
     {
-        yield return new WaitForSeconds(chargeTime);
+        float t = 0f;
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        Color baseColor = sr.color;
 
-        EnemyCombat combat = GetComponent<EnemyCombat>();
+        aoeIndicator = Instantiate(
+            aoeIndicatorPrefab,
+            transform.position,
+            Quaternion.identity
+        );
+        Debug.Log("AOE INDICATOR SPAWNED");
+        
+        SpriteRenderer aoeSR = aoeIndicator.GetComponent<SpriteRenderer>();
+        if (aoeSR != null)
+        {
 
-        Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, aoeRadius);
+            Vector3 originalScale = aoeIndicator.transform.localScale;
+            aoeIndicator.transform.localScale = Vector3.one;
+
+            float spriteWorldDiameter = aoeSR.bounds.size.x;
+
+            float desiredDiameter = aoeRadius * 2f;
+
+            float scaleFactor = desiredDiameter / spriteWorldDiameter;
+
+            aoeIndicator.transform.localScale = Vector3.one * scaleFactor;
+            aoeSR.sortingOrder = GetComponent<SpriteRenderer>().sortingOrder - 1;
+        }
+
+
+        while (t < chargeTime)
+        {
+            // Mantener el AOE centrado en el enemigo
+            aoeIndicator.transform.position = transform.position;
+
+            sr.color = Color.red;
+            yield return new WaitForSeconds(0.1f);
+
+            sr.color = baseColor;
+            yield return new WaitForSeconds(0.1f);
+
+            t += 0.2f;
+        }
+
+        sr.color = baseColor;
+        Destroy(aoeIndicator);
+
+        Collider2D[] hits = Physics2D.OverlapCircleAll(
+            transform.position,
+            aoeRadius
+        );
+
         foreach (var hit in hits)
         {
             if (hit.CompareTag("Player"))
             {
-                hit.GetComponent<PlayerHealth>()?
-                    .TakeDamage(stats.baseDamage, combat);
+                hit.GetComponent<PlayerHealth>()
+                    ?.TakeDamage(stats.baseDamage, null);
             }
+        }
+    }
+
+
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, aoeRadius);
+    }
+    
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("MapBoundary") && isDashing)
+        {
+            Debug.Log("HA PARADO EMBESTIDA");
+            isDashing = false;
+            rb.linearVelocity = Vector2.zero;
         }
     }
 

@@ -23,6 +23,10 @@ public class Projectile : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        EnemyHealth eh = other.GetComponent<EnemyHealth>();
+        if (eh == null || eh.isDead)
+            return; //control para muertos o nulos.
+
         if (hasHit)
             return;
 

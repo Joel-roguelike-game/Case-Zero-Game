@@ -24,7 +24,14 @@ public class EnemyTrapperAI : MonoBehaviour
 
         if (Time.time >= nextPuddleTime)
         {
-            Instantiate(puddlePrefab, transform.position, Quaternion.identity);
+            GameObject p = Instantiate(puddlePrefab, transform.position, Quaternion.identity);
+
+            ToxicPuddle tp = p.GetComponent<ToxicPuddle>();
+            if (tp != null)
+            {
+                tp.tickDamage = stats.baseDamage;
+            }
+            
             nextPuddleTime = Time.time + puddleInterval;
         }
     }

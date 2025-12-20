@@ -39,4 +39,13 @@ public class EnemyStats : MonoBehaviour
         baseDamage *= 1f + (level - 1) * 0.25f;
         baseStability *= 1f + (level - 1) * 0.2f;
     }
+    
+    public void InitializeFromLevel(int lvl)
+    {
+        level = lvl;
+        ApplyLevelScaling();
+        currentHealth = baseHealth;
+        currentStability = baseStability;
+    }
+
 }

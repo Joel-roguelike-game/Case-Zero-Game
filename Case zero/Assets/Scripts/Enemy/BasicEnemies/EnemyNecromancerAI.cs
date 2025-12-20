@@ -43,7 +43,13 @@ public class EnemyNecromancerAI : MonoBehaviour
 
         for (int i = 0; i < 2; i++)
         {
-            Instantiate(bruiserPrefab, transform.position + Random.insideUnitSphere, Quaternion.identity);
+            GameObject b = Instantiate(bruiserPrefab, transform.position + Random.insideUnitSphere, Quaternion.identity);
+
+            EnemyStats es = b.GetComponent<EnemyStats>();
+            if (es != null)
+            {
+                es.InitializeFromLevel(stats.level);
+            }
         }
 
         summoning = false;
