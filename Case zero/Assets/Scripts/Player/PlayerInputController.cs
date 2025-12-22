@@ -1,13 +1,16 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/*controla los inputs del player*/
+/*
+ * PlayerInputController
+ * 
+ * Centraliza y expone los inputs del jugador.
+ * Usa el sistema de Input Actions de Unity.
+ */
 public class PlayerInputController : MonoBehaviour
 {
-    
     public PlayerInputActions inputActions;
 
-    
     public Vector2 MoveInput { get; private set; }
     public bool DodgePressed { get; private set; }
     public bool ParryPressed { get; private set; }
@@ -15,11 +18,17 @@ public class PlayerInputController : MonoBehaviour
     public bool RangedPressed { get; private set; }
     public bool MenuPressed { get; private set; }
 
+    /*
+     * Inicializa el sistema de input.
+     */
     private void Awake()
     {
         inputActions = new PlayerInputActions();
     }
 
+    /*
+     * Habilita los mapas de input y sus callbacks.
+     */
     private void OnEnable()
     {
         inputActions.Enable();
@@ -45,15 +54,19 @@ public class PlayerInputController : MonoBehaviour
         inputActions.Ui.InGameMenu.canceled += ctx => MenuPressed = false;
     }
 
+    /*
+     * Deshabilita el sistema de input.
+     */
     private void OnDisable()
     {
         inputActions.Disable();
     }
 
-    
+    /*
+     * Actualiza el input de movimiento.
+     */
     private void OnMove(InputAction.CallbackContext context)
     {
         MoveInput = context.ReadValue<Vector2>();
     }
-    
 }

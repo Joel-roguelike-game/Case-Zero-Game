@@ -2,13 +2,16 @@ using UnityEngine;
 using System.Collections;
 
 /*
- Gestiona:
- - Recepción de daño
- - Rotura de estabilidad
- - Daño aumentado durante rotura
- - Ataque del Bruiser
- - gestiona el estado de parry del enemigo
-*/
+ * EnemyCombat
+ * 
+ * Gestiona todo el combate del enemigo:
+ * - Recepción de daño
+ * - Sistema de estabilidad y rotura
+ * - Daño recibido
+ * - Daño por contacto (melee tipo bruiser)
+ * - Interacción con el sistema de parry
+ * - Gestión de textos de daño
+ */
 public class EnemyCombat : MonoBehaviour
 {
     private EnemyStats stats;
@@ -22,13 +25,21 @@ public class EnemyCombat : MonoBehaviour
     private Coroutine stabilityRoutine;
     private bool parryAffected;
 
-
+    /*
+     * Obtiene referencias a las estadísticas y a la vida del enemigo.
+     */
     private void Awake()
     {
         stats = GetComponent<EnemyStats>();
         health = GetComponent<EnemyHealth>();
     }
 
+    /*
+     * Recibe un impacto desde el jugador:
+     * - Aplica rotura de estabilidad
+     * - Aplica daño
+     * - Genera y acumula texto de daño
+     */
     public void ReceiveHit(
         DamageResult result,
         float stabilityBreak,
@@ -74,19 +85,20 @@ public class EnemyCombat : MonoBehaviour
                 DamageTextSpawner.Instance.config
             );
         }
-
     }
 
+    /*
+     * Limpia el texto de daño activo al destruir el enemigo.
+     */
     private void OnDestroy()
     {
         if (activeDamageText != null)
             Destroy(activeDamageText.gameObject);
     }
 
-
     /*
-     Regenera la estabilidad tras 5 segundos completamente.
-    */
+     * Regenera completamente la estabilidad tras un tiempo de espera.
+     */
     private IEnumerator RegenerateStability()
     {
         Debug.Log("Estabilidad rota, regenerando...");
@@ -95,14 +107,14 @@ public class EnemyCombat : MonoBehaviour
         stats.currentStability = stats.baseStability;
         stats.stabilityBroken = false;
         Debug.Log("Estabilidad recuperada");
-
     }
     
     private bool canDealContactDamage = true;
     public float contactDamageCooldown = 1f;
 
     /*
-     * intenta dañar mientras este dentro.
+     * Daño por contacto continuo mientras el jugador permanece en el collider.
+     * Incluye cooldown para evitar daño constante cada frame.
      */
     private void OnTriggerStay2D(Collider2D other)
     {
@@ -115,23 +127,33 @@ public class EnemyCombat : MonoBehaviour
         PlayerHealth ph = other.GetComponent<PlayerHealth>();
         if (ph == null)
             return;
+
         ph.TakeDamage(stats.baseDamage, this);
         StartCoroutine(ContactDamageCooldown());
     }
 
+    /*
+     * Cooldown del daño por contacto.
+     */
     private IEnumerator ContactDamageCooldown()
     {
         canDealContactDamage = false;
         yield return new WaitForSeconds(contactDamageCooldown);
         canDealContactDamage = true;
     }
-    //logica para el parry
+
+    /*
+     * Marca al enemigo como afectado por un parry.
+     */
     public void SetParryAffected()
     {
         parryAffected = true;
         Debug.Log("ENEMIGO AFECTADO POR PARRY");
     }
 
+    /*
+     * Consume el estado de parry en el siguiente golpe.
+     */
     public bool ConsumeParryAffected()
     {
         if (!parryAffected)
@@ -141,7 +163,4 @@ public class EnemyCombat : MonoBehaviour
         Debug.Log("PARRY CONSUMIDO EN ESTE GOLPE");
         return true;
     }
-
-
-
 }

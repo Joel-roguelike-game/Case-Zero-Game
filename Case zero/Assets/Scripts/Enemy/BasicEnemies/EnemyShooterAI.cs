@@ -1,10 +1,12 @@
 using UnityEngine;
 
 /*
- Enemigo ranged básico:
- - Se acerca hasta una distancia mínima
- - Dispara proyectiles con cooldown
-*/
+ * EnemyShooterAI
+ * 
+ * Enemigo a distancia básico.
+ * Se acerca al jugador hasta una distancia mínima
+ * y dispara proyectiles de forma periódica usando cooldown.
+ */
 public class EnemyShooterAI : MonoBehaviour
 {
     public float stopDistance = 5f;
@@ -15,12 +17,20 @@ public class EnemyShooterAI : MonoBehaviour
     private EnemyStats stats;
     private float nextShootTime;
 
+    /*
+     * Inicializa referencias al jugador y a las estadísticas del enemigo.
+     */
     private void Awake()
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
         stats = GetComponent<EnemyStats>();
     }
 
+    /*
+     * Decide el comportamiento según la distancia al jugador:
+     * - Si está lejos, se mueve hacia él.
+     * - Si está a rango, intenta disparar.
+     */
     private void Update()
     {
         if (player == null || stats == null) return;
@@ -33,12 +43,20 @@ public class EnemyShooterAI : MonoBehaviour
             TryShoot();
     }
 
+    /*
+     * Movimiento básico hacia el jugador.
+     */
     private void MoveTowardsPlayer()
     {
         Vector2 dir = (player.position - transform.position).normalized;
         transform.position += (Vector3)(dir * stats.moveSpeed * Time.deltaTime);
     }
 
+    /*
+     * Gestiona el disparo del enemigo:
+     * - Respeta el cooldown.
+     * - Instancia un proyectil y le asigna dirección y daño.
+     */
     private void TryShoot()
     {
         if (Time.time < nextShootTime) return;

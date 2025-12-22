@@ -1,6 +1,13 @@
 using UnityEngine;
 using System.Collections;
 
+/*
+ * EnemyNecromancerAI
+ * 
+ * Enemigo invocador que mantiene la distancia del jugador.
+ * Si el jugador está lejos, invoca enemigos aliados.
+ * Si el jugador se acerca demasiado, deja de invocar y ataca cuerpo a cuerpo.
+ */
 public class EnemyNecromancerAI : MonoBehaviour
 {
     public float summonTime = 3f;
@@ -11,12 +18,22 @@ public class EnemyNecromancerAI : MonoBehaviour
     private EnemyStats stats;
     private bool summoning;
 
+    /*
+     * Inicializa referencias básicas:
+     * - Transform del jugador.
+     * - Estadísticas propias del enemigo.
+     */
     private void Awake()
     {
         player = GameObject.FindGameObjectWithTag("Player").transform;
         stats = GetComponent<EnemyStats>();
     }
 
+    /*
+     * Decide el comportamiento según la distancia al jugador:
+     * - Si está lejos, intenta invocar enemigos.
+     * - Si está cerca, cancela invocaciones y ataca en melee.
+     */
     private void Update()
     {
         if (player == null) return;
@@ -36,6 +53,12 @@ public class EnemyNecromancerAI : MonoBehaviour
         }
     }
 
+    /*
+     * Rutina de invocación:
+     * - Espera un tiempo de canalización.
+     * - Invoca varios enemigos aliados alrededor del necromancer.
+     * - Aplica el nivel del necromancer a los enemigos invocados.
+     */
     private IEnumerator SummonRoutine()
     {
         summoning = true;
@@ -55,6 +78,11 @@ public class EnemyNecromancerAI : MonoBehaviour
         summoning = false;
     }
 
+    /*
+     * Ataque cuerpo a cuerpo en área:
+     * - Detecta al jugador dentro del rango.
+     * - Aplica daño usando el sistema de combate del enemigo.
+     */
     private void MeleeAttack()
     {
         EnemyCombat combat = GetComponent<EnemyCombat>();
@@ -69,5 +97,4 @@ public class EnemyNecromancerAI : MonoBehaviour
             }
         }
     }
-
 }

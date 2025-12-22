@@ -1,44 +1,58 @@
 using UnityEngine;
 using System.Collections;
 
+/*
+ * PlayerMovement
+ * 
+ * Controla el movimiento del jugador:
+ * - Movimiento básico
+ * - Dash
+ * - Parry
+ * - Restricción a los límites de la sala
+ * - Integración con el sistema de input y estadísticas
+ */
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerMovement : MonoBehaviour
 {
     private Rigidbody2D rb;
     private PlayerInputController input;
     private Collider2D playerCollider;
-    //estadisticas
     private PlayerStats stats;
-    //cuarto
+
     [Header("Room Bounds")]
     public BoxCollider2D roomCollider; // Asignar en Inspector
-    //dash
+
     [Header("Dash Settings")]
-    public float dashMultiplier = 3f;  // Cuántas veces más rápido que la velocidad normal
-    public float dashDuration = 0.15f; // duración del dash en segundos
+    public float dashMultiplier = 3f;
+    public float dashDuration = 0.15f;
     public float dashCooldown = 1f;
+
     private Vector2 minBounds;
     private Vector2 maxBounds;
     private bool canDash = true;
     private bool isDashing = false;
     private Vector2 dashDirection;
-    //armas
+
     private WeaponHandler weaponHandler;
-    //parry
+
     private bool isParrying;
     private bool canParry = true;
 
-
+    /*
+     * Obtiene todas las referencias necesarias.
+     */
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         input = GetComponent<PlayerInputController>();
         playerCollider = GetComponent<Collider2D>();
         stats = GetComponent<PlayerStats>(); 
-        weaponHandler = GetComponent<WeaponHandler>(); // lógica de armas
+        weaponHandler = GetComponent<WeaponHandler>();
     }
 
-
+    /*
+     * Inicializa límites de la sala y callbacks de input.
+     */
     private void Start()
     {
         if (roomCollider != null)
@@ -47,12 +61,14 @@ public class PlayerMovement : MonoBehaviour
             maxBounds = roomCollider.bounds.max;
         }
 
-        // Suscribirse a eventos de input
         input.inputActions.Gameplay.Dodge.performed += ctx => OnDodge();
         input.inputActions.Gameplay.Parry.performed += ctx => OnParry();
         input.inputActions.Ui.InGameMenu.performed += ctx => OnMenu();
     }
 
+    /*
+     * Controla el movimiento físico del jugador.
+     */
     private void FixedUpdate()
     {
         if (!isDashing)
@@ -62,13 +78,17 @@ public class PlayerMovement : MonoBehaviour
         ClampToRoomBounds();
     }
 
-    // Mueve al jugador usando MovePosition
+    /*
+     * Mueve al jugador usando velocidad del Rigidbody.
+     */
     private void MovePlayer()
     {
         rb.linearVelocity = input.MoveInput * stats.moveSpeed.Current;
     }
 
-    // Impide que el jugador salga de los límites de la sala
+    /*
+     * Evita que el jugador salga de los límites de la sala.
+     */
     private void ClampToRoomBounds()
     {
         if (roomCollider == null) return;
@@ -82,7 +102,9 @@ public class PlayerMovement : MonoBehaviour
         rb.position = new Vector2(clampedX, clampedY);
     }
 
-    // dash
+    /*
+     * Inicia el dash si se cumplen las condiciones.
+     */
     private void OnDodge()
     {
         if (canDash && !isDashing && !isParrying && input.MoveInput != Vector2.zero)
@@ -92,7 +114,10 @@ public class PlayerMovement : MonoBehaviour
             StartCoroutine(DashRoutine());
         }
     }
-    //dash routine
+
+    /*
+     * Rutina completa del dash.
+     */
     private IEnumerator DashRoutine()
     {
         canDash = false;
@@ -104,21 +129,21 @@ public class PlayerMovement : MonoBehaviour
 
         while (elapsed < dashDuration)
         {
-            // Durante el dash, ignoramos input normal
             rb.linearVelocity = dashMultiplier * stats.moveSpeed.Current * dashDirection;
             elapsed += Time.fixedDeltaTime;
             yield return new WaitForFixedUpdate();
         }
 
-        // Fin del dash: restauramos velocidad normal
         isDashing = false;
         rb.linearVelocity = Vector2.zero;
 
-        // Cooldown
         yield return new WaitForSeconds(dashCooldown);
         canDash = true;
     }
-    //parry
+
+    /*
+     * Inicia el parry si está disponible.
+     */
     private void OnParry()
     {
         if (!canParry || isDashing)
@@ -126,7 +151,10 @@ public class PlayerMovement : MonoBehaviour
 
         StartCoroutine(ParryRoutine());
     }
-    //parry routine
+
+    /*
+     * Rutina completa del parry.
+     */
     private IEnumerator ParryRoutine()
     {
         Debug.Log("PARRY ACTIVADO");
@@ -139,16 +167,17 @@ public class PlayerMovement : MonoBehaviour
 
         GetComponent<PlayerHealth>().StartParryInvulnerability(0.15f);
 
-        yield return new WaitForSeconds(0.15f); //duración
+        yield return new WaitForSeconds(0.15f);
 
         stats.moveSpeed.Current = originalSpeed;
         isParrying = false;
 
-        yield return new WaitForSeconds(2.85f); // cooldown
+        yield return new WaitForSeconds(2.85f);
         canParry = true;
     }
 
-
+    /*
+     * Callback del menú.
+     */
     private void OnMenu() => Debug.Log("MENU!");
 }
-

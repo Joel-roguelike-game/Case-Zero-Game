@@ -1,5 +1,10 @@
 using UnityEngine;
 
+/*
+ Proyectil del jugador.
+ Se desplaza en línea recta, aplica daño al impactar
+ y se destruye tras colisionar o al acabar su vida útil.
+*/
 public class Projectile : MonoBehaviour
 {
     public float speed = 100f;
@@ -12,6 +17,9 @@ public class Projectile : MonoBehaviour
     private float timer;
     private bool hasHit;
 
+    /*
+     * Mueve el proyectil y controla su tiempo de vida.
+     */
     private void Update()
     {
         transform.position += (Vector3)direction * speed * Time.deltaTime;
@@ -21,11 +29,15 @@ public class Projectile : MonoBehaviour
             Destroy(gameObject);
     }
 
+    /*
+     * Detecta impacto con enemigos.
+     * Calcula daño final y lo aplica mediante EnemyCombat.
+     */
     private void OnTriggerEnter2D(Collider2D other)
     {
         EnemyHealth eh = other.GetComponent<EnemyHealth>();
         if (eh == null || eh.isDead)
-            return; //control para muertos o nulos.
+            return; // control para muertos o nulos
 
         if (hasHit)
             return;
@@ -55,7 +67,6 @@ public class Projectile : MonoBehaviour
             owner.weaponRanged.stabilityBreak,
             owner.stabilityMultiplier.Current
         );
-
 
         Destroy(gameObject);
     }

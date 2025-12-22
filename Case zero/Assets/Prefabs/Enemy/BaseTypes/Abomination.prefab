@@ -208,7 +208,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
   level: 1
-  baseHealth: 250
+  baseHealth: 200
   baseDamage: 25
   baseStability: 50
   moveSpeed: 6
@@ -229,7 +229,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAbominationAI
   engageDistance: 6
   chargeTime: 1
-  dashMultiplier: 5
+  dashMultiplier: 4
   aoeRadius: 8
   attackCooldown: 2
   aoeIndicatorPrefab: {fileID: 3266125751652482820, guid: ae1d628b0caf28a46b97edf296aefb39, type: 3}

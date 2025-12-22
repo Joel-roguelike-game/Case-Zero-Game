@@ -2,9 +2,14 @@ using UnityEngine;
 using System.Collections;
 
 /*
- Controla la vida y la muerte del enemigo.
- Al morir hace fade y se destruye.
-*/
+ * EnemyHealth
+ *
+ * Controla la vida del enemigo:
+ * - Recepción de daño
+ * - Muerte
+ * - Desactivación de componentes
+ * - Fade visual antes de destruirse
+ */
 public class EnemyHealth : MonoBehaviour
 {
     private EnemyStats stats;
@@ -12,13 +17,18 @@ public class EnemyHealth : MonoBehaviour
     
     public bool isDead { get; private set; }
 
-
+    /*
+     * Inicializa referencias a estadísticas y SpriteRenderer.
+     */
     private void Awake()
     {
         stats = GetComponent<EnemyStats>();
         sr = GetComponent<SpriteRenderer>();
     }
 
+    /*
+     * Aplica daño al enemigo y gestiona la muerte.
+     */
     public void TakeDamage(float amount)
     {
         if (isDead) return;
@@ -46,7 +56,11 @@ public class EnemyHealth : MonoBehaviour
         }
     }
 
-
+    /*
+     * Secuencia de muerte:
+     * - Hace fade del sprite
+     * - Destruye el GameObject
+     */
     private IEnumerator Die()
     {
         float t = 0f;

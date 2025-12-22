@@ -33,7 +33,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.04, y: 4.62, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.25, y: 1.25, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -208,7 +208,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
   level: 1
-  baseHealth: 60
+  baseHealth: 50
   baseDamage: 4
   baseStability: 20
   moveSpeed: 6
@@ -227,6 +227,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 684b522b4b7836140a8634305dcde21f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyNecromancerAI
-  summonTime: 8
+  summonTime: 10
   meleeRange: 2
   bruiserPrefab: {fileID: 7483944699652285861, guid: 025e36d49958cbc4bbc335a9b4d8183d, type: 3}

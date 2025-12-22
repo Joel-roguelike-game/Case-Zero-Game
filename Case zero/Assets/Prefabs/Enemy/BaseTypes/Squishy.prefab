@@ -208,7 +208,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
   level: 1
-  baseHealth: 50
+  baseHealth: 30
   baseDamage: 10
   baseStability: 30
   moveSpeed: 6

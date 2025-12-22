@@ -1,10 +1,15 @@
 using UnityEngine;
 
 /*
- Estadísticas del enemigo.
- Escalan con el nivel.
- Incluye sistema de estabilidad integrado.
-*/
+ * EnemyStats
+ *
+ * Contiene todas las estadísticas del enemigo:
+ * - Vida
+ * - Daño
+ * - Estabilidad
+ * - Velocidad
+ * Incluye escalado por nivel y valores runtime.
+ */
 public class EnemyStats : MonoBehaviour
 {
     [Header("Level")]
@@ -23,6 +28,10 @@ public class EnemyStats : MonoBehaviour
     [Header("Stability State")]
     public bool stabilityBroken;
 
+    /*
+     * Aplica el escalado inicial por nivel
+     * y configura los valores runtime.
+     */
     private void Awake()
     {
         ApplyLevelScaling();
@@ -31,8 +40,8 @@ public class EnemyStats : MonoBehaviour
     }
 
     /*
-     Escala las estadísticas según el nivel del enemigo.
-    */
+     * Escala las estadísticas base según el nivel del enemigo.
+     */
     private void ApplyLevelScaling()
     {
         baseHealth *= 1f + (level - 1) * 0.3f;
@@ -40,6 +49,10 @@ public class EnemyStats : MonoBehaviour
         baseStability *= 1f + (level - 1) * 0.2f;
     }
     
+    /*
+     * Inicializa las estadísticas del enemigo a partir de un nivel dado.
+     * Usado principalmente por enemigos invocados.
+     */
     public void InitializeFromLevel(int lvl)
     {
         level = lvl;
@@ -47,5 +60,4 @@ public class EnemyStats : MonoBehaviour
         currentHealth = baseHealth;
         currentStability = baseStability;
     }
-
 }

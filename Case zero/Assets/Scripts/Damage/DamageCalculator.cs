@@ -22,7 +22,7 @@ public static class DamageCalculator
         float extraMultiplier = Mathf.Max(
             isParry ? parryMult : 1f,
             stabilityBroken ? stabilityMult : 1f
-        ); //coje el multiplicador mas alto: en el caso de que sea parry y rotura a la vez solo coje el mas alto, si no esninguno, x1
+        ); //coje el multiplicador mas alto: en el caso de que sea parry y rotura a la vez solo coje el mas alto, si no es ninguno, x1
 
         float finalDamage = baseDamage * critMultiplier * extraMultiplier; 
 

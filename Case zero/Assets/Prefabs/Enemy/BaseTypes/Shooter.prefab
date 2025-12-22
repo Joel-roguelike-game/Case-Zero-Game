@@ -33,7 +33,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -3.51716, y: 4.62, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -208,7 +208,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyStats
   level: 1
-  baseHealth: 80
+  baseHealth: 70
   baseDamage: 15
   baseStability: 40
   moveSpeed: 6
@@ -227,6 +227,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8f1abe76a2a3d8a4db6130c0939f5340, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyShooterAI
-  stopDistance: 10
+  stopDistance: 8
   shootCooldown: 3
   projectilePrefab: {fileID: 1996405498597514002, guid: efa9c24c4996f084cab72f8b268d8c3b, type: 3}

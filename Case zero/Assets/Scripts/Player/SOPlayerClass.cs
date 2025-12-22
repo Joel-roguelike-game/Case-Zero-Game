@@ -1,6 +1,7 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "SOPlayerClass", menuName = "Classes/Player Class")]
+/*Crea las estadisticaas del jugador en un ScriptableObject*/
 public class SOPlayerClass : ScriptableObject
 {
     [Header("Stats Base")]
