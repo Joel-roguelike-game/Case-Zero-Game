@@ -1,6 +1,13 @@
 using UnityEngine;
 using System.Collections;
 
+/*
+ * SlowMotionController
+ *
+ * Controla la cámara lenta del juego.
+ * Se utiliza principalmente como feedback visual durante un parry exitoso.
+ * Implementado como Singleton persistente entre escenas.
+ */
 public class SlowMotionController : MonoBehaviour
 {
     public static SlowMotionController Instance;
@@ -11,6 +18,10 @@ public class SlowMotionController : MonoBehaviour
 
     private Coroutine slowRoutine;
 
+    /*
+     * Inicializa el Singleton.
+     * Asegura que solo exista una instancia y persista entre escenas.
+     */
     private void Awake()
     {
         if (Instance != null)
@@ -23,6 +34,10 @@ public class SlowMotionController : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    /*
+     * Lanza la cámara lenta asociada a un parry.
+     * Si ya hay una activa, la reinicia.
+     */
     public void TriggerParrySlow()
     {
         if (slowRoutine != null)
@@ -31,6 +46,10 @@ public class SlowMotionController : MonoBehaviour
         slowRoutine = StartCoroutine(SlowRoutine());
     }
 
+    /*
+     * Rutina que reduce el timeScale durante un tiempo
+     * y luego lo restaura a valores normales.
+     */
     private IEnumerator SlowRoutine()
     {
         Debug.Log("SLOW MOTION ACTIVADO");

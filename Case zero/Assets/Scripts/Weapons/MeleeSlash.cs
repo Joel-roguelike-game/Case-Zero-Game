@@ -1,10 +1,9 @@
 using UnityEngine;
 
 /*
- Representa un ataque cuerpo a cuerpo:
- - Se orienta hacia el ratón
- - Aplica daño y rotura de estabilidad
- - Vive un tiempo corto y desaparece
+ Representa un ataque cuerpo a cuerpo del jugador.
+ Se instancia como una hitbox temporal orientada hacia el ratón.
+ Aplica daño, rotura de estabilidad y tiene una vida muy corta.
 */
 public class MeleeSlash : MonoBehaviour
 {
@@ -22,6 +21,11 @@ public class MeleeSlash : MonoBehaviour
     public float duration = 0.15f;
     private float timer;
 
+    /*
+     * Inicializa el ataque:
+     * - Rota el slash según la dirección
+     * - Escala el tamaño según el rango CaC del jugador
+     */
     private void Start()
     {
         // Rotar hacia la dirección del ataque
@@ -33,6 +37,10 @@ public class MeleeSlash : MonoBehaviour
         transform.localScale = new Vector3(range, range, 1f);
     }
 
+    /*
+     * Controla la duración del ataque.
+     * Al terminar su tiempo de vida, se destruye.
+     */
     private void Update()
     {
         timer += Time.deltaTime;
@@ -42,6 +50,10 @@ public class MeleeSlash : MonoBehaviour
 
     private bool hasHit;
 
+    /*
+     * Detecta colisión con enemigos.
+     * Calcula el daño final y lo envía al sistema de combate enemigo.
+     */
     private void OnTriggerEnter2D(Collider2D collision)
     {
         EnemyCombat enemy = collision.GetComponent<EnemyCombat>();
@@ -67,8 +79,5 @@ public class MeleeSlash : MonoBehaviour
             stabilityBreak,
             owner.stabilityMultiplier.Current
         );
-
     }
-
-
 }

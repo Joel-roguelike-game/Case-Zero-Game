@@ -2,11 +2,9 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 /*
- Gestiona ataques melee y ranged del jugador.
- - Ataque continuo manteniendo pulsado
- - Cadencia REAL basada en stats
- - Sin disparos dobles (Time.time)
- - Melee y ranged mutuamente excluyentes
+ Gestiona el uso de armas del jugador.
+ Controla ataques melee y ranged, cadencia real,
+ prioridad entre ataques y cálculo de dirección.
 */
 public class WeaponHandler : MonoBehaviour
 {
@@ -17,6 +15,9 @@ public class WeaponHandler : MonoBehaviour
 
     private float nextAttackTime = 0f;
 
+    /*
+     * Inicializa referencias necesarias.
+     */
     private void Awake()
     {
         stats = GetComponent<PlayerStats>();
@@ -25,6 +26,10 @@ public class WeaponHandler : MonoBehaviour
         cam = Camera.main;
     }
 
+    /*
+     * Gestiona el input continuo de ataque.
+     * Controla la cadencia real usando Time.time.
+     */
     private void Update()
     {
         if (Time.time < nextAttackTime)
@@ -33,7 +38,6 @@ public class WeaponHandler : MonoBehaviour
         bool meleeHeld  = inputController.inputActions.Gameplay.MeleeAttack.ReadValue<float>() > 0.1f;
         bool rangedHeld = inputController.inputActions.Gameplay.RangedAttack.ReadValue<float>() > 0.1f;
 
-        // PRIORIDAD: MELEE
         if (meleeHeld && stats.weaponMelee != null)
         {
             UseMelee();
@@ -41,7 +45,6 @@ public class WeaponHandler : MonoBehaviour
             return;
         }
 
-        // RANGED
         if (rangedHeld && stats.weaponRanged != null)
         {
             UseRanged();
@@ -49,16 +52,25 @@ public class WeaponHandler : MonoBehaviour
         }
     }
 
+    /*
+     * Calcula el cooldown real del ataque melee.
+     */
     private float GetMeleeCooldown()
     {
         return 1f / (stats.weaponMelee.attackSpeed * stats.atkSpeedCaC.Current);
     }
 
+    /*
+     * Calcula el cooldown real del ataque a distancia.
+     */
     private float GetRangedCooldown()
     {
         return 1f / (stats.weaponRanged.attackSpeed * stats.atkSpeedDist.Current);
     }
 
+    /*
+     * Obtiene la dirección desde el jugador hacia el ratón.
+     */
     private Vector2 GetMouseDirection()
     {
         Vector2 mouseScreenPos = Mouse.current.position.ReadValue();
@@ -66,14 +78,18 @@ public class WeaponHandler : MonoBehaviour
         return (mouseWorldPos - (Vector2)transform.position).normalized;
     }
 
+    /*
+     * Calcula dinámicamente el punto de salida del proyectil.
+     */
     private Vector2 GetDynamicFirePoint(Vector2 direction)
     {
         float radius = playerCollider.bounds.extents.magnitude;
         return (Vector2)playerCollider.bounds.center + direction * radius;
     }
 
-    // ================= MELEE =================
-
+    /*
+     * Ejecuta un ataque cuerpo a cuerpo.
+     */
     public void UseMelee()
     {
         Vector2 dir = GetMouseDirection();
@@ -90,20 +106,19 @@ public class WeaponHandler : MonoBehaviour
         slash.owner = stats;
         slash.direction = dir;
 
-        slash.owner = stats;
-        slash.direction = dir;
-        
-        slash.damage = ((stats.weaponMelee.damagePercent/100) * stats.caCDmg.Current)+stats.weaponMelee.flatDamage;
+        slash.damage = ((stats.weaponMelee.damagePercent / 100) * stats.caCDmg.Current) + stats.weaponMelee.flatDamage;
         slash.stabilityBreak = stats.weaponMelee.stabilityBreak;
         slash.stabilityMultiplier = stats.stabilityMultiplier.Current;
-        
+
         Collider2D slashCol = slashObj.GetComponent<Collider2D>();
         if (slashCol != null)
             Physics2D.IgnoreCollision(playerCollider, slashCol);
     }
 
-    // ================= RANGED =================
-
+    /*
+     * Ejecuta un ataque a distancia.
+     * Gestiona munición y armas especiales como la escopeta.
+     */
     public void UseRanged()
     {
         if (stats.actualAmmo.Current <= 0)
@@ -124,6 +139,9 @@ public class WeaponHandler : MonoBehaviour
         stats.actualAmmo.Current--;
     }
 
+    /*
+     * Devuelve el spread según el arma.
+     */
     private float GetSpread(SOWeapon weapon)
     {
         if (weapon.weaponName == "Ballesta" || weapon.weaponName == "Rifle")
@@ -132,12 +150,18 @@ public class WeaponHandler : MonoBehaviour
         return weapon.weaponName == "Escopeta" ? 45f : 15f;
     }
 
+    /*
+     * Aplica variación angular a la dirección del disparo.
+     */
     private Vector2 ApplySpread(Vector2 dir, float spread)
     {
         float angle = Random.Range(-spread * 0.5f, spread * 0.5f);
         return Quaternion.Euler(0, 0, angle) * dir;
     }
 
+    /*
+     * Dispara múltiples proyectiles tipo escopeta.
+     */
     private void ShootShotgun(Vector2 baseDir)
     {
         for (int i = 0; i < 5; i++)
@@ -147,6 +171,9 @@ public class WeaponHandler : MonoBehaviour
         }
     }
 
+    /*
+     * Instancia y configura un proyectil.
+     */
     private void ShootProjectile(SOWeapon weapon, Vector2 direction, float dmgMultiplier)
     {
         Vector2 firePoint = GetDynamicFirePoint(direction);

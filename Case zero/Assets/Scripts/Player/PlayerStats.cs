@@ -1,16 +1,21 @@
 using UnityEngine;
 
+/*
+ * PlayerStats
+ * 
+ * Contiene todas las estadísticas del jugador.
+ * Inicializa valores desde el ScriptableObject de la clase
+ * y mantiene los valores runtime durante la partida.
+ */
 [RequireComponent(typeof(Collider2D))]
 public class PlayerStats : MonoBehaviour
 {
     [Header("Clase (ScriptableObject base)")]
-    public SOPlayerClass pClass; // asignar el SO de la clase en el inspector o cargar en runtime
+    public SOPlayerClass pClass;
 
-    //armas de la clase actuales
     public SOWeapon weaponMelee;
     public SOWeapon weaponRanged;
     
-    // Estadísticas (Base = de SO, Current = en run)
     public StatValue maxHP;
     public StatValue maxStamina;
     public StatValue caCDmg;
@@ -22,7 +27,6 @@ public class PlayerStats : MonoBehaviour
     public StatValue atkSpeedDist;
     public StatValue actualAmmo;
 
-    // Modificadores
     public StatValue parryMultiplier;
     public StatValue stabilityMultiplier;
     public StatValue dodgeSpeed;
@@ -32,26 +36,27 @@ public class PlayerStats : MonoBehaviour
     public StatValue lifestealFlat;
     public StatValue caCRange;
 
-    // Progresión
     public int level;
-    public float xP;       // XP actual
-    public float currentHp;    //  Vida  actual
+    public float xP;
+    public float currentHp;
     public int gold;
-    public float currentStamina; // stamina actual 
+    public float currentStamina;
 
-    // Pasiva instanciada como child (opcional)
     private GameObject passiveInstance;
 
+    /*
+     * Carga la clase asignada al iniciar.
+     */
     private void Awake()
     {
         if (pClass != null)
             LoadClass(pClass);
     }
 
-    /// <summary>
-    /// Inicializa las StatValues y variables desde el ScriptableObject de la clase.
-    /// Llamar al inicio de la run o al seleccionar clase.
-    /// </summary>
+    /*
+     * Inicializa todas las estadísticas a partir del ScriptableObject
+     * de la clase del jugador.
+     */
     public void LoadClass(SOPlayerClass data)
     {
         pClass = data;
@@ -83,11 +88,9 @@ public class PlayerStats : MonoBehaviour
         xP = data.xP;
         gold = data.gold;
 
-        // HP y stamina siempre empiezan al máximo del valor actual
         currentHp = maxHP.Base;
         currentStamina = maxStamina.Base;
 
-        // Instanciar pasiva
         if (passiveInstance != null) Destroy(passiveInstance);
         if (data.pasivaPrefab != null)
             passiveInstance = Instantiate(data.pasivaPrefab, transform);

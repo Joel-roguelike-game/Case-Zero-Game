@@ -1,5 +1,5 @@
 using UnityEngine;
-
+/*hace aparecer el texto de daño*/
 public class DamageTextSpawner : MonoBehaviour
 {
     public static DamageTextSpawner Instance;
@@ -11,7 +11,7 @@ public class DamageTextSpawner : MonoBehaviour
     {
         Instance = this;
     }
-
+    /*hace aparecer el texto de daño en el mundo*/
     public DamageText Spawn(
         Vector3 worldPos,
         int damage,
