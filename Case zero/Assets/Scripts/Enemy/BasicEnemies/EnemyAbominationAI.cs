@@ -14,44 +14,21 @@ using Random = UnityEngine.Random;
  */
 public class EnemyAbominationAI : MonoBehaviour
 {
-    // Distancia a partir de la cual deja de moverse y empieza a atacar
+
     public float engageDistance = 6f;
-
-    // Tiempo de carga previo a los ataques
     public float chargeTime = 0.5f;
-
-    // Multiplicador de velocidad durante el dash
     public float dashMultiplier = 2.5f;
-
-    // Radio del ataque en área
     public float aoeRadius = 2.5f;
-
-    // Tiempo de espera entre ataques
     public float attackCooldown = 2f;
-
-    // Referencia al jugador
     private Transform player;
-
-    // Estadísticas del enemigo (vida, daño, velocidad, etc.)
     private EnemyStats stats;
-
-    // Indica si el enemigo está realizando un ataque
     private bool attacking;
-
-    // Ayuda a saber cuándo el enemigo está en una embestida activa
     private bool isDashing;
-
-    // Dirección en la que se realiza el dash
     private Vector2 dashDirection;
-
-    // Rigidbody para mover al enemigo durante el dash
     private Rigidbody2D rb;
-
-    // Prefab visual que indica el área del ataque AOE
     public GameObject aoeIndicatorPrefab;
-
-    // Instancia actual del indicador AOE
     private GameObject aoeIndicator;
+    private EnemyHealth health;
 
     /*
      * Inicializa referencias necesarias:
@@ -64,6 +41,8 @@ public class EnemyAbominationAI : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player").transform;
         stats = GetComponent<EnemyStats>();
         rb = GetComponent<Rigidbody2D>();
+        health = GetComponent<EnemyHealth>();
+
     }
 
     /*
@@ -76,6 +55,9 @@ public class EnemyAbominationAI : MonoBehaviour
     private void Update()
     {
         if (attacking || player == null) return;
+
+        if (health != null && health.isDead)
+            return;
 
         float dist = Vector2.Distance(transform.position, player.position);
 
@@ -97,6 +79,9 @@ public class EnemyAbominationAI : MonoBehaviour
      */
     private void FixedUpdate()
     {
+        if (health != null && health.isDead)
+            return;
+
         if (isDashing)
             rb.linearVelocity = dashDirection * stats.moveSpeed * dashMultiplier;
     }
@@ -167,30 +152,30 @@ public class EnemyAbominationAI : MonoBehaviour
         SpriteRenderer aoeSR = aoeIndicator.GetComponent<SpriteRenderer>();
         if (aoeSR != null)
         {
-            // Forzar escala base para calcular tamaño real del sprite
+
             Vector3 originalScale = aoeIndicator.transform.localScale;
             aoeIndicator.transform.localScale = Vector3.one;
 
-            // Diámetro real del sprite en el mundo
             float spriteWorldDiameter = aoeSR.bounds.size.x;
 
-            // Diámetro deseado según el radio del AOE
             float desiredDiameter = aoeRadius * 2f;
 
-            // Factor de escala necesario para igualar el radio de daño
             float scaleFactor = desiredDiameter / spriteWorldDiameter;
 
-            // Aplicar escala final
             aoeIndicator.transform.localScale = Vector3.one * scaleFactor;
 
-            // Asegurar que el indicador se dibuje por debajo del enemigo
             aoeSR.sortingOrder = GetComponent<SpriteRenderer>().sortingOrder - 1;
         }
 
         // Fase de carga del ataque con parpadeo visual
         while (t < chargeTime)
         {
-            // Mantener el AOE centrado en el enemigo
+            if (health != null && health.isDead)
+                yield break;
+            
+            if (aoeIndicator == null)
+                yield break;
+
             aoeIndicator.transform.position = transform.position;
 
             sr.color = Color.red;
@@ -201,6 +186,7 @@ public class EnemyAbominationAI : MonoBehaviour
 
             t += 0.2f;
         }
+
 
         sr.color = baseColor;
         Destroy(aoeIndicator);
@@ -221,6 +207,24 @@ public class EnemyAbominationAI : MonoBehaviour
         }
     }
 
+    /*
+     * Limpieza forzada al desactivar el enemigo.
+     * - Elimina el indicador AOE si estaba activo
+     * - Cancela cualquier embestida en curso
+     */
+    private void OnDisable()
+    {
+        if (aoeIndicator != null)
+        {
+            Destroy(aoeIndicator);
+            aoeIndicator = null;
+        }
+
+        isDashing = false;
+    }
+
+
+    
     /*
      * Indicador visual del radio del AOE en el editor.
      * Útil para debug y balanceo. Borrable más adelante.
