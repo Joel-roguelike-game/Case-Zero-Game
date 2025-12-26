@@ -86,6 +86,7 @@ public class MeleeSlash : MonoBehaviour
         bool isParry = enemy.ConsumeParryAffected();
 
         DamageResult result = DamageCalculator.CalculatePlayerDamage(
+            owner,
             owner.weaponMelee.flatDamage,
             owner.weaponMelee.damagePercent,
             owner.caCDmg.Current,

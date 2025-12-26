@@ -15,7 +15,7 @@ using System.Collections;
 public class EnemyCombat : MonoBehaviour
 {
     private EnemyStats stats;
-    private EnemyHealth health;
+    public EnemyHealth health;
 
     private DamageText activeDamageText;
 
@@ -25,6 +25,7 @@ public class EnemyCombat : MonoBehaviour
     private Coroutine stabilityRoutine;
     private bool parryAffected;
 
+    public float damageMultiplier = 1f;
     /*
      * Obtiene referencias a las estadísticas y a la vida del enemigo.
      */
@@ -60,8 +61,9 @@ public class EnemyCombat : MonoBehaviour
             }
         }
 
-        float finalDamage = result.damage;
+        float finalDamage = result.damage * damageMultiplier;
         health.TakeDamage(finalDamage);
+
 
         int dmgInt = Mathf.FloorToInt(finalDamage);
 

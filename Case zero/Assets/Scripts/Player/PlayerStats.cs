@@ -45,6 +45,11 @@ public class PlayerStats : MonoBehaviour
 
     private GameObject passiveInstance;
     private float staminaRegenTimer;
+    public SOClassPassive classPassive;
+    public SOClassActive classActive;
+ 
+    public float lastActiveTime = -999f;
+
 
     /*
      * Carga la clase asignada al iniciar.
@@ -95,8 +100,9 @@ public class PlayerStats : MonoBehaviour
         currentStamina = maxStamina.Base;
 
         if (passiveInstance != null) Destroy(passiveInstance);
-        if (data.pasivaPrefab != null)
-            passiveInstance = Instantiate(data.pasivaPrefab, transform);
+        classPassive = data.passive;
+        classActive = data.active;
+
     }
     
     /*
@@ -138,4 +144,39 @@ public class PlayerStats : MonoBehaviour
             staminaRegenTimer = 0f;
         }
     }
+    /*intenta hacer uso de la habilidad activa del jugador basandose en el cooldown*/
+    public void TryActivate()
+    {
+        if (classActive == null) return;
+        if (Time.time < lastActiveTime + classActive.cooldown)
+        {
+            Debug.Log("Habilidad en Cooldown: "+ Time.time+"/"+lastActiveTime + classActive.cooldown);
+            return;
+        }
+        classActive.Activar(this);
+    }
+    
+    private void OnEnable()
+    {
+        DamageCalculator.OnCritHit += HandleCrit;
+    }
+
+    private void OnDisable()
+    {
+        DamageCalculator.OnCritHit -= HandleCrit;
+    }
+
+    private void HandleCrit(PlayerStats stats, bool isCrit)
+    {
+        if (!isCrit) return;
+
+        // Solo Levee
+        if (stats.pClass.name == "Levee")
+        {
+            stats.classPassive?.Activar(stats);
+            Debug.Log("¡Pasiva Levee activada!");
+        }
+    }
+
+
 }

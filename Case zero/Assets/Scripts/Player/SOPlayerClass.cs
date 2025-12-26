@@ -35,6 +35,6 @@ public class SOPlayerClass : ScriptableObject
     public int xP = 0;
     public int gold = 0;
 
-    [Header("Pasiva")]
-    public GameObject pasivaPrefab;
+    public SOClassPassive passive;
+    public SOClassActive active;
 }

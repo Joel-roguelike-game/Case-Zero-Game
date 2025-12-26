@@ -2,7 +2,11 @@ using UnityEngine;
 /*Clase que se encarga de los calculos de daño del jugador. */
 public static class DamageCalculator
 {
+    public static event System.Action<PlayerStats, bool> OnCritHit;
+
+    
     public static DamageResult CalculatePlayerDamage(
+        PlayerStats playerStats,    // <--- PASAMOS EL PLAYERSTATS
         float flat,
         float percent,
         float playerDamage,
@@ -17,6 +21,8 @@ public static class DamageCalculator
         float baseDamage = flat + ((percent/100) * playerDamage); //ddaño base
 
         bool isCrit = Random.Range(0f, 100f) <= critChance; //prob
+        OnCritHit?.Invoke(playerStats, isCrit); // disparas el evento
+
         float critMultiplier = isCrit ? critMult / 100f : 1f; //si es critico,coje el multi, sino x1
 
         float extraMultiplier = Mathf.Max(
