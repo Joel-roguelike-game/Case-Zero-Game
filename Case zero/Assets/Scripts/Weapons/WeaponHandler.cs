@@ -15,6 +15,8 @@ public class WeaponHandler : MonoBehaviour
 
     private float nextAttackTime = 0f;
 
+    public bool isAttacking;
+
     /*
      * Inicializa referencias necesarias.
      */
@@ -32,6 +34,8 @@ public class WeaponHandler : MonoBehaviour
      */
     private void Update()
     {
+        isAttacking = false;
+        
         if (Time.time < nextAttackTime)
             return;
 
@@ -40,8 +44,11 @@ public class WeaponHandler : MonoBehaviour
 
         if (meleeHeld && stats.weaponMelee != null)
         {
+            if (!stats.ConsumeStamina(10f))
+                return;
             UseMelee();
             nextAttackTime = Time.time + GetMeleeCooldown();
+            isAttacking = true;
             return;
         }
 
@@ -49,6 +56,7 @@ public class WeaponHandler : MonoBehaviour
         {
             UseRanged();
             nextAttackTime = Time.time + GetRangedCooldown();
+            isAttacking = true;
         }
     }
 
@@ -92,6 +100,7 @@ public class WeaponHandler : MonoBehaviour
      */
     public void UseMelee()
     {
+        
         Vector2 dir = GetMouseDirection();
         float radius = playerCollider.bounds.extents.magnitude * stats.caCRange.Current;
         Vector2 pos = (Vector2)playerCollider.bounds.center + dir * radius;
@@ -147,7 +156,7 @@ public class WeaponHandler : MonoBehaviour
         if (weapon.weaponName == "Ballesta" || weapon.weaponName == "Rifle")
             return 0f;
 
-        return weapon.weaponName == "Escopeta" ? 45f : 15f;
+        return weapon.weaponName == "Escopeta" ? 35f : 10f;
     }
 
     /*
@@ -166,7 +175,7 @@ public class WeaponHandler : MonoBehaviour
     {
         for (int i = 0; i < 5; i++)
         {
-            Vector2 dir = ApplySpread(baseDir, 45f);
+            Vector2 dir = ApplySpread(baseDir, 35f);
             ShootProjectile(stats.weaponRanged, dir, 1f);
         }
     }

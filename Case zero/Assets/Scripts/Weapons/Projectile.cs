@@ -67,6 +67,9 @@ public class Projectile : MonoBehaviour
             owner.weaponRanged.stabilityBreak,
             owner.stabilityMultiplier.Current
         );
+        owner.GetComponent<PlayerHealth>()
+            ?.TryApplyLifesteal();
+
 
         Destroy(gameObject);
     }

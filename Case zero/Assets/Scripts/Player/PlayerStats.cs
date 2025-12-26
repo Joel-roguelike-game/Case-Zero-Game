@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /*
@@ -43,6 +44,7 @@ public class PlayerStats : MonoBehaviour
     public float currentStamina;
 
     private GameObject passiveInstance;
+    private float staminaRegenTimer;
 
     /*
      * Carga la clase asignada al iniciar.
@@ -52,6 +54,7 @@ public class PlayerStats : MonoBehaviour
         if (pClass != null)
             LoadClass(pClass);
     }
+
 
     /*
      * Inicializa todas las estadísticas a partir del ScriptableObject
@@ -94,5 +97,45 @@ public class PlayerStats : MonoBehaviour
         if (passiveInstance != null) Destroy(passiveInstance);
         if (data.pasivaPrefab != null)
             passiveInstance = Instantiate(data.pasivaPrefab, transform);
+    }
+    
+    /*
+     * Consume stamina si hay suficiente.
+     * Devuelve true si el consumo fue exitoso.
+     */
+    public bool ConsumeStamina(float amount)
+    {
+        if (currentStamina < amount)
+            return false;
+
+        currentStamina -= amount;
+        staminaRegenTimer = 0f;
+        return true;
+    }
+
+    /*
+     * Controla la regeneración de stamina.
+     * Se llama desde Update si el jugador está en estado válido.
+     */
+    public void RegenerateStamina(bool canRegen)
+    {
+        if (!canRegen)
+        {
+            staminaRegenTimer = 0f;
+            return;
+        }
+
+        staminaRegenTimer += Time.deltaTime;
+
+        if (staminaRegenTimer >= 0.1f)
+        {
+            currentStamina += staminaRegen.Current;
+            currentStamina = Mathf.Min(
+                currentStamina,
+                maxStamina.Current
+            );
+
+            staminaRegenTimer = 0f;
+        }
     }
 }

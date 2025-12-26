@@ -30,12 +30,12 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 minBounds;
     private Vector2 maxBounds;
     private bool canDash = true;
-    private bool isDashing = false;
+    public bool isDashing = false;
     private Vector2 dashDirection;
 
     private WeaponHandler weaponHandler;
 
-    private bool isParrying;
+    public bool isParrying;
     private bool canParry = true;
 
     /*
@@ -50,6 +50,18 @@ public class PlayerMovement : MonoBehaviour
         weaponHandler = GetComponent<WeaponHandler>();
     }
 
+    /*
+     * Controla la regeneración de stamina del jugador.
+     */
+    private void Update()
+    {
+        bool canRegenStamina =
+            !weaponHandler.isAttacking &&
+            !isDashing &&
+            !isParrying;
+
+        stats.RegenerateStamina(canRegenStamina);
+    }
     /*
      * Inicializa límites de la sala y callbacks de input.
      */
@@ -107,12 +119,15 @@ public class PlayerMovement : MonoBehaviour
      */
     private void OnDodge()
     {
-        if (canDash && !isDashing && !isParrying && input.MoveInput != Vector2.zero)
-        {
-            Debug.Log("DODGED!");
-            dashDirection = input.MoveInput.normalized;
-            StartCoroutine(DashRoutine());
-        }
+        if (!canDash || isDashing || isParrying || input.MoveInput == Vector2.zero)
+            return;
+        //intenta consumir stamina
+        if (!stats.ConsumeStamina(20f))
+            return;
+
+        Debug.Log("DODGED!");
+        dashDirection = input.MoveInput.normalized;
+        StartCoroutine(DashRoutine());
     }
 
     /*
@@ -146,7 +161,10 @@ public class PlayerMovement : MonoBehaviour
      */
     private void OnParry()
     {
-        if (!canParry || isDashing)
+        if (!canParry || isDashing || isParrying)
+            return;
+
+        if (!stats.ConsumeStamina(30f))
             return;
 
         StartCoroutine(ParryRoutine());

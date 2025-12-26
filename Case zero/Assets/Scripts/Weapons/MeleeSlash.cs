@@ -102,5 +102,7 @@ public class MeleeSlash : MonoBehaviour
             stabilityBreak,
             owner.stabilityMultiplier.Current
         );
+        owner.GetComponent<PlayerHealth>()
+            ?.TryApplyLifesteal();
     }
 }
