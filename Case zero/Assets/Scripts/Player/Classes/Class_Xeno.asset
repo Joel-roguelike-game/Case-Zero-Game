@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26d01a31a3ca83947a31e05ac90df193, type: 3}
+  m_Name: Class_Xeno
+  m_EditorClassIdentifier: Assembly-CSharp::SOPlayerClass
+  weaponMelee: {fileID: 11400000, guid: df75735747e3fc44baf93de6102a640a, type: 2}
+  weaponRanged: {fileID: 11400000, guid: 56d4d6bbb49fcd44599fe5310565c847, type: 2}
+  maxHP: 150
+  maxStamina: 50
+  caCDmg: 5
+  distDmg: 5
+  critChance: 10
+  critDamage: 150
+  moveSpeed: 8
+  atkSpeedCaC: 1
+  atkSpeedDist: 1
+  actualAmmo: 1000
+  parryMultiplier: 3
+  stabilityMultiplier: 1.5
+  dodgeSpeed: 1
+  staminaRegen: 1
+  hpRegen: 0
+  lifestealPercent: 0
+  lifestealFlat: 0
+  caCRange: 1
+  level: 1
+  xP: 0
+  gold: 0
+  passive: {fileID: 11400000, guid: 1887f2e544548e747ade479580e54f15, type: 2}
+  active: {fileID: 0}
