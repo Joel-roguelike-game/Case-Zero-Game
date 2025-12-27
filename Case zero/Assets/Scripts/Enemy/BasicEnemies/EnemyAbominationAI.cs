@@ -29,6 +29,7 @@ public class EnemyAbominationAI : MonoBehaviour
     public GameObject aoeIndicatorPrefab;
     private GameObject aoeIndicator;
     private EnemyHealth health;
+    EnemyCombat source;
 
     /*
      * Inicializa referencias necesarias:
@@ -42,7 +43,7 @@ public class EnemyAbominationAI : MonoBehaviour
         stats = GetComponent<EnemyStats>();
         rb = GetComponent<Rigidbody2D>();
         health = GetComponent<EnemyHealth>();
-
+        source = GetComponent<EnemyCombat>();
     }
 
     /*
@@ -197,12 +198,14 @@ public class EnemyAbominationAI : MonoBehaviour
             aoeRadius
         );
 
+        
+        
         foreach (var hit in hits)
         {
             if (hit.CompareTag("Player"))
             {
                 hit.GetComponent<PlayerHealth>()
-                    ?.TakeDamage(stats.baseDamage, null);
+                    ?.TakeDamage(stats.baseDamage, source);
             }
         }
     }

@@ -11,18 +11,20 @@ public class EnemyProjectile : MonoBehaviour
 {
     public float speed = 8f;
     public float lifeTime = 4f;
-
+    
     private Vector2 direction;
     private float damage;
     private float timer;
+    private EnemyCombat source;
 
     /*
      * Inicializa la dirección y el daño del proyectil.
      */
-    public void Init(Vector2 dir, float dmg)
+    public void Init(Vector2 dir, float dmg, EnemyCombat enemySource)
     {
         direction = dir.normalized;
         damage = dmg;
+        source = enemySource;
     }
 
     /*
@@ -47,7 +49,7 @@ public class EnemyProjectile : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             other.GetComponent<PlayerHealth>()
-                ?.TakeDamage(damage, null);
+                ?.TakeDamage(damage, source);
             Destroy(gameObject);
         }
 

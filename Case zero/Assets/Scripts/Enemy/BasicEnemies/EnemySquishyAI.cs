@@ -5,61 +5,61 @@ using System.Collections;
  * EnemySquishyAI
  * 
  * Enemigo frágil que persigue al jugador y ejecuta
- * un dash rápido cuando entra en rango.
- * Tras golpear, entra en cooldown antes de volver a atacar.
+ * un dash rectilíneo hacia la última posición conocida del jugador.
+ * El dash termina al golpear al jugador o al chocar con el mapa.
  */
 public class EnemySquishyAI : MonoBehaviour
 {
     public float engageDistance = 4f;
     public float chargeTime = 0.3f;
     public float dashSpeedMultiplier = 3f;
-    public float postHitCooldown = 2f;
+    public float attackCooldown = 2f;
 
     private Transform player;
     private EnemyStats stats;
-    private bool attacking;
-    private bool hasHitPlayer;
-    
+    private EnemyCombat source;
+
     private Rigidbody2D rb;
-    private Coroutine dashRoutine;
+
+    private bool attacking;
+    private bool isDashing;
+    private Vector2 dashDirection;
 
     /*
-     * Inicializa referencias al jugador, estadísticas y Rigidbody.
+     * Inicializa referencias.
      */
     private void Awake()
     {
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        player = GameObject.FindGameObjectWithTag("Player")?.transform;
         stats = GetComponent<EnemyStats>();
+        source = GetComponent<EnemyCombat>();
         rb = GetComponent<Rigidbody2D>();
     }
 
     /*
-     * Controla el estado general del enemigo:
-     * - Persigue al jugador si está lejos.
-     * - Inicia el dash si entra en rango.
-     * - Se bloquea temporalmente tras golpear al jugador.
+     * Lógica general:
+     * - Persigue al jugador si está lejos
+     * - Si entra en rango, inicia el ataque de dash
      */
     private void Update()
     {
-        if (attacking || player == null) return;
+        if (player == null || attacking)
+            return;
 
         float dist = Vector2.Distance(transform.position, player.position);
-
-        if (hasHitPlayer)
-            return;
 
         if (dist > engageDistance)
         {
             MoveTowardsPlayer();
         }
-        else if (!attacking)
+        else
         {
-            dashRoutine = StartCoroutine(DashAttack());
+            StartCoroutine(DashAttack());
         }
     }
 
     /*
-     * Movimiento básico de persecución.
+     * Movimiento básico hacia el jugador.
      */
     private void MoveTowardsPlayer()
     {
@@ -68,58 +68,76 @@ public class EnemySquishyAI : MonoBehaviour
     }
 
     /*
+     * Movimiento físico del dash.
+     */
+    private void FixedUpdate()
+    {
+        if (isDashing)
+        {
+            rb.linearVelocity = dashDirection * stats.moveSpeed * dashSpeedMultiplier;
+        }
+    }
+
+    /*
      * Ataque de dash:
-     * - Espera un breve tiempo de carga.
-     * - Se lanza hacia el jugador hasta golpearlo.
+     * - Carga
+     * - Calcula dirección fija
+     * - Activa el dash
      */
     private IEnumerator DashAttack()
     {
         attacking = true;
+
         yield return new WaitForSeconds(chargeTime);
 
-        while (!hasHitPlayer)
+        if (player == null)
         {
-            if (player == null) break;
-
-            Vector2 dir = (player.position - transform.position).normalized;
-            rb.linearVelocity = dir * stats.moveSpeed * dashSpeedMultiplier;
-            yield return null;
+            attacking = false;
+            yield break;
         }
 
-        rb.linearVelocity = Vector2.zero;
+        dashDirection = (player.position - transform.position).normalized;
+        isDashing = true;
     }
 
     /*
-     * Detecta el impacto con el jugador:
-     * - Aplica daño.
-     * - Detiene el dash.
-     * - Inicia el cooldown post-impacto.
+     * Gestión de colisiones durante el dash.
      */
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Player") && !hasHitPlayer)
+        if (!isDashing)
+            return;
+
+        if (other.CompareTag("Player"))
         {
-            hasHitPlayer = true;
-
             other.GetComponent<PlayerHealth>()
-                ?.TakeDamage(stats.baseDamage, null);
+                ?.TakeDamage(stats.baseDamage, source);
 
-            if (dashRoutine != null)
-                StopCoroutine(dashRoutine);
+            EndDash();
+        }
 
-            rb.linearVelocity = Vector2.zero;
-            StartCoroutine(PostHitCooldown());
+        if (other.CompareTag("MapBoundary"))
+        {
+            EndDash();
         }
     }
 
     /*
-     * Cooldown tras impactar al jugador
-     * antes de permitir un nuevo ataque.
+     * Finaliza el dash y entra en cooldown.
      */
-    private IEnumerator PostHitCooldown()
+    private void EndDash()
     {
-        yield return new WaitForSeconds(postHitCooldown);
-        hasHitPlayer = false;
+        isDashing = false;
+        rb.linearVelocity = Vector2.zero;
+        StartCoroutine(AttackCooldown());
+    }
+
+    /*
+     * Cooldown tras el ataque.
+     */
+    private IEnumerator AttackCooldown()
+    {
+        yield return new WaitForSeconds(attackCooldown);
         attacking = false;
     }
 }

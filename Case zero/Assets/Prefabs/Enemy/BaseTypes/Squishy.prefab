@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 5878794697104768634}
   - component: {fileID: 5749572492694480550}
   - component: {fileID: 5288690576391295414}
-  - component: {fileID: 7475549611019233988}
+  - component: {fileID: 715978682229127920}
   m_Layer: 0
   m_Name: Squishy
   m_TagString: Enemy
@@ -181,7 +181,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee7608dd419270e40a00dfa894a5f444, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyCombat
+  health: {fileID: 0}
   stabilityRegenDelay: 5
+  damageMultiplier: 1
   contactDamageCooldown: 1
 --- !u!114 &5749572492694480550
 MonoBehaviour:
@@ -215,7 +217,7 @@ MonoBehaviour:
   currentHealth: 0
   currentStability: 0
   stabilityBroken: 0
---- !u!114 &7475549611019233988
+--- !u!114 &715978682229127920
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -227,7 +229,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 30dcf598c3905ec4a95d3bba5598787e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySquishyAI
-  engageDistance: 7
-  chargeTime: 0.5
-  dashSpeedMultiplier: 2.75
-  postHitCooldown: 2
+  engageDistance: 4
+  chargeTime: 0.3
+  dashSpeedMultiplier: 3
+  attackCooldown: 2

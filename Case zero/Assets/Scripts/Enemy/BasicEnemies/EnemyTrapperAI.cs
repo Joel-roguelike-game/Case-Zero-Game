@@ -43,6 +43,7 @@ public class EnemyTrapperAI : MonoBehaviour
             if (tp != null)
             {
                 tp.tickDamage = stats.baseDamage;
+                tp.Init(GetComponent<EnemyCombat>());
             }
             
             nextPuddleTime = Time.time + puddleInterval;
