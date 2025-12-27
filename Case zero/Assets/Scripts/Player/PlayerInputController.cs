@@ -49,6 +49,8 @@ public class PlayerInputController : MonoBehaviour
         inputActions.Gameplay.RangedAttack.performed += ctx => RangedPressed = true;
         inputActions.Gameplay.RangedAttack.canceled += ctx => RangedPressed = false;
 
+        inputActions.Gameplay.Ability.performed += ctx => OnActive();
+
         // UI map
         inputActions.Ui.InGameMenu.performed += ctx => MenuPressed = true;
         inputActions.Ui.InGameMenu.canceled += ctx => MenuPressed = false;
@@ -69,4 +71,10 @@ public class PlayerInputController : MonoBehaviour
     {
         MoveInput = context.ReadValue<Vector2>();
     }
+    
+    private void OnActive()
+    {
+        GetComponent<PlayerStats>().TryActivate();
+    }
+
 }

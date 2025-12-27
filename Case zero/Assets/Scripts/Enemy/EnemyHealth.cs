@@ -14,7 +14,8 @@ public class EnemyHealth : MonoBehaviour
 {
     private EnemyStats stats;
     private SpriteRenderer sr;
-    
+
+    // Indica si el enemigo ya está muerto (estado global)
     public bool isDead { get; private set; }
 
     /*
@@ -31,29 +32,52 @@ public class EnemyHealth : MonoBehaviour
      */
     public void TakeDamage(float amount)
     {
+        // Evita recibir daño después de muerto
         if (isDead) return;
 
         stats.currentHealth -= amount;
 
         if (stats.currentHealth <= 0f)
         {
-            isDead = true;
-            StartCoroutine(Die());
-
-            EnemyCombat ec = GetComponent<EnemyCombat>();
-            if (ec != null) ec.enabled = false;
-
-            EnemyMovement em = GetComponent<EnemyMovement>();
-            if (em != null) em.enabled = false;
-
-            Rigidbody2D rb = GetComponent<Rigidbody2D>();
-            if (rb != null)
-                rb.linearVelocity = Vector2.zero;
-
-            Collider2D[] cols = GetComponentsInChildren<Collider2D>();
-            foreach (var col in cols)
-                col.enabled = false;
+            HandleDeath();
         }
+    }
+
+    /*
+     * Maneja la muerte del enemigo.
+     * 
+     * NUEVO:
+     * - Marca el enemigo como muerto
+     * - Detiene TODAS las coroutines
+     * - Desactiva todos los scripts de comportamiento
+     * - Detiene el Rigidbody
+     * - Desactiva todos los colliders
+     */
+    private void HandleDeath()
+    {
+        isDead = true;
+
+        // Detener TODAS las coroutines del enemigo
+        StopAllCoroutines();
+
+        // Desactivar todos los scripts excepto este
+        foreach (var mb in GetComponents<MonoBehaviour>())
+        {
+            if (mb != this)
+                mb.enabled = false;
+        }
+
+        // Detener cualquier movimiento físico
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+            rb.linearVelocity = Vector2.zero;
+
+        // Desactivar todos los colliders (hitbox, triggers, etc.)
+        foreach (var col in GetComponentsInChildren<Collider2D>())
+            col.enabled = false;
+
+        // Iniciar la secuencia visual de muerte
+        StartCoroutine(Die());
     }
 
     /*
@@ -65,7 +89,7 @@ public class EnemyHealth : MonoBehaviour
     {
         float t = 0f;
         Color c = sr.color;
-        
+
         while (t < 3f)
         {
             t += Time.deltaTime;

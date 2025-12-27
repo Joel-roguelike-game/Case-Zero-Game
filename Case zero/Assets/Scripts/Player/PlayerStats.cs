@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /*
@@ -43,6 +44,12 @@ public class PlayerStats : MonoBehaviour
     public float currentStamina;
 
     private GameObject passiveInstance;
+    private float staminaRegenTimer;
+    public SOClassPassive classPassive;
+    public SOClassActive classActive;
+ 
+    public float lastActiveTime = -999f;
+
 
     /*
      * Carga la clase asignada al iniciar.
@@ -53,14 +60,19 @@ public class PlayerStats : MonoBehaviour
             LoadClass(pClass);
     }
 
+
     /*
      * Inicializa todas las estadísticas a partir del ScriptableObject
      * de la clase del jugador.
      */
     public void LoadClass(SOPlayerClass data)
     {
+        // Desactivar pasiva anterior
+        if (classPassive != null)
+            classPassive.Deactivate(this);
+
         pClass = data;
-        
+
         weaponMelee = data.weaponMelee;
         weaponRanged = data.weaponRanged;
 
@@ -91,8 +103,62 @@ public class PlayerStats : MonoBehaviour
         currentHp = maxHP.Base;
         currentStamina = maxStamina.Base;
 
-        if (passiveInstance != null) Destroy(passiveInstance);
-        if (data.pasivaPrefab != null)
-            passiveInstance = Instantiate(data.pasivaPrefab, transform);
+        classPassive = data.passive;
+        classActive = data.active;
+
+        // Activar nueva pasiva
+        if (classPassive != null)
+            classPassive.Activate(this);
+    }
+    
+    /*
+     * Consume stamina si hay suficiente.
+     * Devuelve true si el consumo fue exitoso.
+     */
+    public bool ConsumeStamina(float amount)
+    {
+        if (currentStamina < amount)
+            return false;
+
+        currentStamina -= amount;
+        staminaRegenTimer = 0f;
+        return true;
+    }
+
+    /*
+     * Controla la regeneración de stamina.
+     * Se llama desde Update si el jugador está en estado válido.
+     */
+    public void RegenerateStamina(bool canRegen)
+    {
+        if (!canRegen)
+        {
+            staminaRegenTimer = 0f;
+            return;
+        }
+
+        staminaRegenTimer += Time.deltaTime;
+
+        if (staminaRegenTimer >= 0.1f)
+        {
+            currentStamina += staminaRegen.Current;
+            currentStamina = Mathf.Min(
+                currentStamina,
+                maxStamina.Current
+            );
+
+            staminaRegenTimer = 0f;
+        }
+    }
+    /*intenta hacer uso de la habilidad activa del jugador basandose en el cooldown*/
+    public void TryActivate()
+    {
+        if (classActive == null) return;
+        if (Time.time < lastActiveTime + classActive.cooldown)
+        {
+            Debug.Log("Habilidad en Cooldown: "+ Time.time+"/"+lastActiveTime + classActive.cooldown);
+            return;
+        }
+        classActive.Activar(this);
     }
 }

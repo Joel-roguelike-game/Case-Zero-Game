@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 1190756214977489539}
   - component: {fileID: 1115671501527194898}
   - component: {fileID: 6896420111910929919}
+  - component: {fileID: 3626980308528913259}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -250,8 +251,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   roomCollider: {fileID: 0}
   dashMultiplier: 2.5
-  dashDuration: 0.18
+  dashDuration: 0.2
   dashCooldown: 2.5
+  isDashing: 0
+  isParrying: 0
 --- !u!114 &1115671501527194898
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -326,6 +329,9 @@ MonoBehaviour:
   currentHp: 0
   gold: 0
   currentStamina: 0
+  classPassive: {fileID: 0}
+  classActive: {fileID: 0}
+  lastActiveTime: -999
 --- !u!114 &6896420111910929919
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -338,3 +344,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d356a8d1855fe641ba88434ded23114, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WeaponHandler
+  isAttacking: 0
+--- !u!114 &3626980308528913259
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2504377609101236755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90c8d067d601c954a9a5a14d93976462, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerHealth
+  invulDuration: 1
+  blinkInterval: 0.1
+  lifestealCooldown: 1

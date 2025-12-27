@@ -1,0 +1,50 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+[CreateAssetMenu(menuName = "Classes/Passives/LeveePassive")]
+public class LeveePassive : SOClassPassive
+{
+    public float moveSpeedBonus = 0.2f;
+    public float duration = 1f;
+    public float healPercent = 0.05f;
+    public float cooldown = 4f;
+
+    private readonly Dictionary<PlayerStats, float> lastProcTimes = new(); //Map<> 
+
+
+    public override void Activate(PlayerStats stats)
+    {
+        CombatEvents.OnPlayerHit += OnHit;
+    }
+
+    public override void Deactivate(PlayerStats stats)
+    {
+        CombatEvents.OnPlayerHit -= OnHit;
+        lastProcTimes.Remove(stats);
+    }
+
+    private void OnHit(PlayerStats stats, DamageResult result)
+    {
+        if (!result.isCrit) return;
+
+        if (!lastProcTimes.TryGetValue(stats, out float lastTime))
+            lastTime = -999f;
+
+        if (Time.time < lastTime + cooldown)
+            return;
+
+        lastProcTimes[stats] = Time.time;
+        stats.StartCoroutine(Apply(stats));
+    }
+
+    private IEnumerator Apply(PlayerStats stats)
+    {
+        float heal = stats.maxHP.Current * healPercent;
+        stats.currentHp = Mathf.Min(stats.currentHp + heal, stats.maxHP.Current);
+
+        stats.moveSpeed.Current *= (1f + moveSpeedBonus);
+        yield return new WaitForSeconds(duration);
+        stats.moveSpeed.Current /= (1f + moveSpeedBonus);
+    }
+}

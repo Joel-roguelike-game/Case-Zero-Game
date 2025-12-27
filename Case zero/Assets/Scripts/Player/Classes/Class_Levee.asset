@@ -27,7 +27,7 @@ MonoBehaviour:
   parryMultiplier: 3
   stabilityMultiplier: 1.5
   dodgeSpeed: 1
-  staminaRegen: 0
+  staminaRegen: 1
   hpRegen: 0
   lifestealPercent: 0
   lifestealFlat: 0
@@ -35,4 +35,5 @@ MonoBehaviour:
   level: 1
   xP: 0
   gold: 0
-  pasivaPrefab: {fileID: 0}
+  passive: {fileID: 11400000, guid: d25602967c0b0dd409d4ea890238edbf, type: 2}
+  active: {fileID: 11400000, guid: 8544e8cdb39b67d4b9abc468d680c1f4, type: 2}

@@ -51,6 +51,7 @@ public class Projectile : MonoBehaviour
         bool isParry = enemy.ConsumeParryAffected();
 
         DamageResult result = DamageCalculator.CalculatePlayerDamage(
+            owner,
             owner.weaponRanged.flatDamage,
             owner.weaponRanged.damagePercent,
             owner.distDmg.Current,
@@ -67,6 +68,9 @@ public class Projectile : MonoBehaviour
             owner.weaponRanged.stabilityBreak,
             owner.stabilityMultiplier.Current
         );
+        owner.GetComponent<PlayerHealth>()
+            ?.TryApplyLifesteal();
+
 
         Destroy(gameObject);
     }

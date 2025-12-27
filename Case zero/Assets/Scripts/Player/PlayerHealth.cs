@@ -16,6 +16,9 @@ public class PlayerHealth : MonoBehaviour
     private PlayerStats stats;
     private SpriteRenderer sr;
 
+    private float hpRegenTimer;
+    private float timeSinceLastHit;
+    
     [Header("Invulnerability")]
     public float invulDuration = 1f;
     public float blinkInterval = 0.1f;
@@ -23,6 +26,11 @@ public class PlayerHealth : MonoBehaviour
     private bool invulnerable;
     private bool parryInvulActive;
     private bool dashInvulActive;
+    
+    [Header("Lifesteal")]
+    public float lifestealCooldown = 1f;
+    private float lastLifestealTime = -999f;
+
 
     /*
      * Obtiene referencias a las estadísticas del jugador
@@ -33,7 +41,30 @@ public class PlayerHealth : MonoBehaviour
         stats = GetComponent<PlayerStats>();
         sr = GetComponentInChildren<SpriteRenderer>();
     }
+    
+    /*
+     * Controla la regeneración de vida.
+     */
+    private void Update()
+    {
+        timeSinceLastHit += Time.deltaTime;
 
+        if (timeSinceLastHit < 1f || invulnerable)
+            return;
+
+        hpRegenTimer += Time.deltaTime;
+
+        if (hpRegenTimer >= 1f)
+        {
+            stats.currentHp += stats.hpRegen.Current;
+            stats.currentHp = Mathf.Min(
+                stats.currentHp,
+                stats.maxHP.Current
+            );
+
+            hpRegenTimer = 0f;
+        }
+    }
     /*
      * Aplica daño al jugador.
      * Si está invulnerable, ignora el daño y gestiona el parry.
@@ -42,7 +73,7 @@ public class PlayerHealth : MonoBehaviour
     {
         if (invulnerable)
         {
-            Debug.Log("DAÑO IGNORADO");
+            //Debug.Log("DAÑO IGNORADO");
 
             if (parryInvulActive && source != null)
             {
@@ -55,7 +86,7 @@ public class PlayerHealth : MonoBehaviour
 
         stats.currentHp -= dmg;
         stats.currentHp = Mathf.Max(stats.currentHp, 0f);
-
+        timeSinceLastHit = 0f;
         StartCoroutine(Invulnerability(false));
     }
 
@@ -117,4 +148,34 @@ public class PlayerHealth : MonoBehaviour
     {
         StartCoroutine(Invulnerability(false, duration, true));
     }
+    
+    /*
+     * Aplica curación por lifesteal al jugador si el cooldown lo permite.
+     */
+    public void TryApplyLifesteal()
+    {
+        if (Time.time < lastLifestealTime + lifestealCooldown)
+            return;
+
+        lastLifestealTime = Time.time;
+
+        float percentHeal = stats.maxHP.Current * (stats.lifestealPercent.Current / 100f);
+
+        float flatHeal = stats.lifestealFlat.Current;
+
+        float totalHeal = percentHeal + flatHeal;
+
+        Heal(totalHeal);
+    }
+
+    
+    /*
+     * Cura al jugador sin superar la vida máxima.
+     */
+    public void Heal(float amount)
+    {
+        stats.currentHp =
+            Mathf.Min(stats.currentHp + amount, stats.maxHP.Current);
+    }
+
 }
