@@ -147,7 +147,7 @@ public class EnemyAbominationAI : MonoBehaviour
             transform.position,
             Quaternion.identity
         );
-        Debug.Log("AOE INDICATOR SPAWNED");
+        //Debug.Log("AOE INDICATOR SPAWNED");
         
         SpriteRenderer aoeSR = aoeIndicator.GetComponent<SpriteRenderer>();
         if (aoeSR != null)
@@ -243,7 +243,7 @@ public class EnemyAbominationAI : MonoBehaviour
     {
         if (other.CompareTag("MapBoundary") && isDashing)
         {
-            Debug.Log("HA PARADO EMBESTIDA");
+            //Debug.Log("HA PARADO EMBESTIDA");
             isDashing = false;
             rb.linearVelocity = Vector2.zero;
         }

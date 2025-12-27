@@ -12,3 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa860100f68b15d499d3a5adbf869817, type: 3}
   m_Name: LeveePassive
   m_EditorClassIdentifier: Assembly-CSharp::LeveePassive
+  moveSpeedBonus: 0.2
+  duration: 1
+  healPercent: 0.05
+  cooldown: 5

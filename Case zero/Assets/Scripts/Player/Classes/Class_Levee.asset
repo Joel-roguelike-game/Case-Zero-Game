@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Class_Levee
   m_EditorClassIdentifier: Assembly-CSharp::SOPlayerClass
   weaponMelee: {fileID: 11400000, guid: 03ff85db176b39743ab17a8dee2aee57, type: 2}
-  weaponRanged: {fileID: 11400000, guid: e32a3d08d8f32e44f98e1253684ea82c, type: 2}
+  weaponRanged: {fileID: 11400000, guid: b57ff3c52d5dcb947a171bc39392e2fd, type: 2}
   maxHP: 100
   maxStamina: 50
   caCDmg: 10

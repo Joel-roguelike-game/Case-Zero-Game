@@ -67,8 +67,12 @@ public class PlayerStats : MonoBehaviour
      */
     public void LoadClass(SOPlayerClass data)
     {
+        // Desactivar pasiva anterior
+        if (classPassive != null)
+            classPassive.Deactivate(this);
+
         pClass = data;
-        
+
         weaponMelee = data.weaponMelee;
         weaponRanged = data.weaponRanged;
 
@@ -99,10 +103,12 @@ public class PlayerStats : MonoBehaviour
         currentHp = maxHP.Base;
         currentStamina = maxStamina.Base;
 
-        if (passiveInstance != null) Destroy(passiveInstance);
         classPassive = data.passive;
         classActive = data.active;
 
+        // Activar nueva pasiva
+        if (classPassive != null)
+            classPassive.Activate(this);
     }
     
     /*
@@ -155,28 +161,4 @@ public class PlayerStats : MonoBehaviour
         }
         classActive.Activar(this);
     }
-    
-    private void OnEnable()
-    {
-        DamageCalculator.OnCritHit += HandleCrit;
-    }
-
-    private void OnDisable()
-    {
-        DamageCalculator.OnCritHit -= HandleCrit;
-    }
-
-    private void HandleCrit(PlayerStats stats, bool isCrit)
-    {
-        if (!isCrit) return;
-
-        // Solo Levee
-        if (stats.pClass.name == "Levee")
-        {
-            stats.classPassive?.Activar(stats);
-            Debug.Log("¡Pasiva Levee activada!");
-        }
-    }
-
-
 }

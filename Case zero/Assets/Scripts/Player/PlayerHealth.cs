@@ -73,7 +73,7 @@ public class PlayerHealth : MonoBehaviour
     {
         if (invulnerable)
         {
-            Debug.Log("DAÑO IGNORADO");
+            //Debug.Log("DAÑO IGNORADO");
 
             if (parryInvulActive && source != null)
             {

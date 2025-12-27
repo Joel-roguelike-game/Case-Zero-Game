@@ -125,7 +125,7 @@ public class PlayerMovement : MonoBehaviour
         if (!stats.ConsumeStamina(20f))
             return;
 
-        Debug.Log("DODGED!");
+        //Debug.Log("DODGED!");
         dashDirection = input.MoveInput.normalized;
         StartCoroutine(DashRoutine());
     }

@@ -18,10 +18,9 @@ public static class DamageCalculator
         float stabilityMult
     )
     {
-        float baseDamage = flat + ((percent/100) * playerDamage); //ddaño base
+        float baseDamage = flat + ((percent/100) * playerDamage); //daño base
 
         bool isCrit = Random.Range(0f, 100f) <= critChance; //prob
-        OnCritHit?.Invoke(playerStats, isCrit); // disparas el evento
 
         float critMultiplier = isCrit ? critMult / 100f : 1f; //si es critico,coje el multi, sino x1
 
@@ -30,12 +29,17 @@ public static class DamageCalculator
             stabilityBroken ? stabilityMult : 1f
         ); //coje el multiplicador mas alto: en el caso de que sea parry y rotura a la vez solo coje el mas alto, si no es ninguno, x1
 
-        float finalDamage = baseDamage * critMultiplier * extraMultiplier; 
+        float finalDamage = baseDamage * critMultiplier * extraMultiplier;
 
-        return new DamageResult
+        DamageResult result = new DamageResult
         {
             damage = finalDamage,
-            isCrit = isCrit //devuelvo esto para numero amarillo en critico maybe se podria cambiar tambien para parry/rotura
+            isCrit = isCrit
         };
+        
+        OnCritHit?.Invoke(playerStats, isCrit);
+        CombatEvents.OnPlayerHit?.Invoke(playerStats, result);
+
+        return result;
     }
 }
