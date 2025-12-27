@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(menuName = "Classes/Passives/LeveePassive")]
@@ -9,7 +10,8 @@ public class LeveePassive : SOClassPassive
     public float healPercent = 0.05f;
     public float cooldown = 4f;
 
-    private float lastProcTime = -999f;
+    private readonly Dictionary<PlayerStats, float> lastProcTimes = new(); //Map<> 
+
 
     public override void Activate(PlayerStats stats)
     {
@@ -19,14 +21,20 @@ public class LeveePassive : SOClassPassive
     public override void Deactivate(PlayerStats stats)
     {
         CombatEvents.OnPlayerHit -= OnHit;
+        lastProcTimes.Remove(stats);
     }
 
     private void OnHit(PlayerStats stats, DamageResult result)
     {
         if (!result.isCrit) return;
-        if (Time.time < lastProcTime + cooldown) return;
 
-        lastProcTime = Time.time;
+        if (!lastProcTimes.TryGetValue(stats, out float lastTime))
+            lastTime = -999f;
+
+        if (Time.time < lastTime + cooldown)
+            return;
+
+        lastProcTimes[stats] = Time.time;
         stats.StartCoroutine(Apply(stats));
     }
 

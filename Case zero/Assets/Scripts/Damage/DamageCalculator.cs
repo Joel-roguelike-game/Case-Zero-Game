@@ -2,8 +2,6 @@ using UnityEngine;
 /*Clase que se encarga de los calculos de daño del jugador. */
 public static class DamageCalculator
 {
-    public static event System.Action<PlayerStats, bool> OnCritHit;
-
     
     public static DamageResult CalculatePlayerDamage(
         PlayerStats playerStats,    // <--- PASAMOS EL PLAYERSTATS
@@ -37,7 +35,6 @@ public static class DamageCalculator
             isCrit = isCrit
         };
         
-        OnCritHit?.Invoke(playerStats, isCrit);
         CombatEvents.OnPlayerHit?.Invoke(playerStats, result);
 
         return result;

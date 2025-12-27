@@ -152,8 +152,10 @@ public class PlayerMovement : MonoBehaviour
         isDashing = false;
         rb.linearVelocity = Vector2.zero;
 
-        yield return new WaitForSeconds(dashCooldown);
+        float effectiveCooldown = dashCooldown / stats.dodgeSpeed.Current;
+        yield return new WaitForSeconds(effectiveCooldown);
         canDash = true;
+
     }
 
     /*
