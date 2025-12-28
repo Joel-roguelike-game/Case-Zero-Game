@@ -16,7 +16,8 @@ public class PlayerStats : MonoBehaviour
 
     public SOWeapon weaponMelee;
     public SOWeapon weaponRanged;
-    
+
+    // === STATS BASE ===
     public StatValue maxHP;
     public StatValue maxStamina;
     public StatValue caCDmg;
@@ -37,19 +38,25 @@ public class PlayerStats : MonoBehaviour
     public StatValue lifestealFlat;
     public StatValue caCRange;
 
+    // === PROGRESIÓN ===
     public int level;
     public float xP;
-    public float currentHp;
     public int gold;
+
+    // === RUNTIME ===
+    public float currentHp;
     public float currentStamina;
 
-    private GameObject passiveInstance;
+    // Valores base runtime (ya con ítems, nivel, buffs PERMANENTES)
+     public float baseCaCDmgRuntime;
+     public float baseDistDmgRuntime;
+
     private float staminaRegenTimer;
+
     public SOClassPassive classPassive;
     public SOClassActive classActive;
- 
-    public float lastActiveTime = -999f;
 
+    public float lastActiveTime = -999f;
 
     /*
      * Carga la clase asignada al iniciar.
@@ -59,7 +66,6 @@ public class PlayerStats : MonoBehaviour
         if (pClass != null)
             LoadClass(pClass);
     }
-
 
     /*
      * Inicializa todas las estadísticas a partir del ScriptableObject
@@ -76,6 +82,7 @@ public class PlayerStats : MonoBehaviour
         weaponMelee = data.weaponMelee;
         weaponRanged = data.weaponRanged;
 
+        // Inicialización de stats
         maxHP = new StatValue(data.maxHP);
         maxStamina = new StatValue(data.maxStamina);
         caCDmg = new StatValue(data.caCDmg);
@@ -96,21 +103,27 @@ public class PlayerStats : MonoBehaviour
         lifestealFlat = new StatValue(data.lifestealFlat);
         caCRange = new StatValue(data.caCRange);
 
+        // Progresión
         level = data.level;
         xP = data.xP;
         gold = data.gold;
 
+        // Vida / stamina inicial
         currentHp = maxHP.Base;
         currentStamina = maxStamina.Base;
+
+        // Guardamos los valores BASE reales de daño (clave para Xeno)
+        baseCaCDmgRuntime = caCDmg.Current;
+        baseDistDmgRuntime = distDmg.Current;
 
         classPassive = data.passive;
         classActive = data.active;
 
-        // Activar nueva pasiva
+        // Activar pasiva de clase
         if (classPassive != null)
             classPassive.Activate(this);
     }
-    
+
     /*
      * Consume stamina si hay suficiente.
      * Devuelve true si el consumo fue exitoso.
@@ -150,15 +163,25 @@ public class PlayerStats : MonoBehaviour
             staminaRegenTimer = 0f;
         }
     }
-    /*intenta hacer uso de la habilidad activa del jugador basandose en el cooldown*/
+
+    /*
+     * Intenta activar la habilidad activa de la clase
+     * respetando el cooldown.
+     */
     public void TryActivate()
     {
-        if (classActive == null) return;
+        if (classActive == null)
+            return;
+
         if (Time.time < lastActiveTime + classActive.cooldown)
         {
-            Debug.Log("Habilidad en Cooldown: "+ Time.time+"/"+lastActiveTime + classActive.cooldown);
+            Debug.Log(
+                "Habilidad en Cooldown: " +
+                Time.time + "/" + (lastActiveTime + classActive.cooldown)
+            );
             return;
         }
+
         classActive.Activar(this);
     }
 }

@@ -450,7 +450,7 @@ Camera:
   far clip plane: 1000
   field of view: 34
   orthographic: 1
-  orthographic size: 8
+  orthographic size: 10
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -589,7 +589,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2633973366028521012, guid: 1cc37e31877d13c42a39a88ddeabbcd2, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4339775926226106934, guid: 1cc37e31877d13c42a39a88ddeabbcd2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1192,7 +1192,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2367118718980643613, guid: 1e519bb35f59be94486ccfbd1193c4e6, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4704487945889578146, guid: 1e519bb35f59be94486ccfbd1193c4e6, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1435,7 +1435,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7483944699652285861, guid: 025e36d49958cbc4bbc335a9b4d8183d, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1496,7 +1496,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1265928174025496091, guid: 3492ead4d6888454aac170b4ba7c5f29, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1517,7 +1517,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 239948183363708797, guid: 3da834751c5c6ff4f975e6568526744c, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5705661519705799269, guid: 3da834751c5c6ff4f975e6568526744c, type: 3}
       propertyPath: m_LocalPosition.x

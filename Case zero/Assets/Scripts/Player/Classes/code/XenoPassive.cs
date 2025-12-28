@@ -1,43 +1,54 @@
 using System.Collections;
 using UnityEngine;
 
+/*
+ * XenoPassive
+ *
+ * Pasiva: Flujo de fuerza
+ * - Aumenta el daño CaC y a distancia en:
+ *   • 1% de la vida máxima actual
+ *   • +2% de la vida que falte hasta la vida máxima
+ * - Se recalcula constantemente para reflejar cambios en HP
+ */
 [CreateAssetMenu(menuName = "Classes/Passives/XenoPassive")]
 public class XenoPassive : SOClassPassive
 {
-    public float maxHpPercentBonus = 0.01f; // 1% de la vida máxima
-    public float currentHpPercentBonus = 0.02f; // 2% de la vida restante
-
-    private PlayerStats stats;
-    private bool active = false;
+    public float maxHpPercentBonus = 0.01f;        // 1% vida máxima
+    public float missingHpPercentBonus = 0.02f;    // 2% vida faltante
 
     public override void Activate(PlayerStats stats)
     {
-        this.stats = stats;
-        if (!active)
-        {
-            active = true;
-            stats.StartCoroutine(UpdateDamageBonus());
-        }
+        // Iniciamos el cálculo dinámico (sin guardar estado en el SO)
+        stats.StartCoroutine(UpdateBonus(stats));
     }
 
     public override void Deactivate(PlayerStats stats)
     {
-        active = false;
+        // Al desactivar, restauramos los valores base
+        stats.caCDmg.Current = stats.baseCaCDmgRuntime;
+        stats.distDmg.Current = stats.baseDistDmgRuntime;
     }
 
-    private IEnumerator UpdateDamageBonus()
+    /*
+     * Recalcula cada frame el bonus de daño de Xeno
+     * sin pisar el daño base ni otros modificadores
+     */
+    private IEnumerator UpdateBonus(PlayerStats stats)
     {
-        while (active)
+        while (true)
         {
-            float bonusFromMax = stats.maxHP.Current * maxHpPercentBonus;
-            float bonusFromCurrent = (stats.maxHP.Current-stats.currentHp) * currentHpPercentBonus;
+            float bonusFromMaxHp =
+                stats.maxHP.Current * maxHpPercentBonus;
 
-            float totalBonus = bonusFromMax + bonusFromCurrent;
+            float bonusFromMissingHp =
+                (stats.maxHP.Current - stats.currentHp) * missingHpPercentBonus;
 
-            stats.caCDmg.Current = stats.pClass.caCDmg + totalBonus;
-            stats.distDmg.Current = stats.pClass.distDmg + totalBonus;
+            float totalBonus = bonusFromMaxHp + bonusFromMissingHp;
 
-            yield return null; // recalcula cada frame
+            stats.caCDmg.Current = stats.baseCaCDmgRuntime + totalBonus;
+            stats.distDmg.Current = stats.baseDistDmgRuntime + totalBonus;
+
+            yield return null; // se recalcula constantemente
         }
     }
 }

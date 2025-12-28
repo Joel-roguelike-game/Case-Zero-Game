@@ -13,4 +13,4 @@ MonoBehaviour:
   m_Name: XenoPassive
   m_EditorClassIdentifier: Assembly-CSharp::XenoPassive
   maxHpPercentBonus: 0.01
-  currentHpPercentBonus: 0.02
+  missingHpPercentBonus: 0.02

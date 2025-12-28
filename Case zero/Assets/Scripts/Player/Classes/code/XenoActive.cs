@@ -1,74 +1,86 @@
 using System.Collections;
 using UnityEngine;
 
+/*
+ * XenoActive
+ * 
+ * Activa: Fuerza imparable
+ * - Otorga un escudo equivalente al 30% de la vida faltante durante 10s
+ * - Si el escudo se rompe:
+ *      • Cura instantáneamente un 25% de la vida actual
+ * - Si el escudo aguanta:
+ *      • Consume el escudo
+ *      • Otorga +25% de vida máxima base durante 10s
+ *      • Cura esa cantidad
+ * - Cooldown: definido en SOClassActive
+ */
 [CreateAssetMenu(fileName = "XenoActive", menuName = "Classes/Actives/XenoActive")]
 public class XenoActive : SOClassActive
 {
-    public float duration = 10f;                 // Duración del escudo
-    public float missingHpPercent = 0.3f;        // Escudo = 30% de la vida que falta
-    public float healOnBreakPercent = 0.25f;     // Cura 25% de la vida actual si se rompe
-    public float bonusMaxHpPercent = 0.25f;      // +25% vida máxima si el escudo aguanta
-
-    private bool isActive = false;
+    public float duration = 10f;
+    public float missingHpPercent = 0.3f;
+    public float healOnBreakPercent = 0.25f;
+    public float bonusMaxHpPercent = 0.25f;
 
     public override void Activar(PlayerStats stats)
     {
-        if (Time.time < stats.lastActiveTime + cooldown) return;
+        if (Time.time < stats.lastActiveTime + cooldown)
+            return;
 
         stats.lastActiveTime = Time.time;
         stats.StartCoroutine(ApplyActive(stats));
     }
 
+    /*
+     * Rutina principal de la activa
+     */
     private IEnumerator ApplyActive(PlayerStats stats)
     {
-        if (isActive) yield break;
-        isActive = true;
-
         PlayerHealth health = stats.GetComponent<PlayerHealth>();
 
-        // Calculamos la vida que falta
+        // Vida que falta
         float missingHp = stats.maxHP.Current - stats.currentHp;
 
         // Escudo como vida temporal
-        float shield = missingHp * missingHpPercent;
-        float initialHp = stats.currentHp;
-        health.Heal(shield); // añadimos al total de vida actual como escudo
+        float shieldAmount = missingHp * missingHpPercent;
+        float hpBeforeShield = stats.currentHp;
+
+        // Aplicamos el "escudo"
+        health.Heal(shieldAmount);
 
         bool shieldBroken = false;
-        float elapsed = 0f;
+        float timer = 0f;
 
-        while (elapsed < duration)
+        while (timer < duration)
         {
-            // Si la vida actual es menor que el valor inicial del escudo, significa que se rompió
-            if (stats.currentHp < initialHp)
+            // Si la vida baja del valor previo al escudo → se rompió
+            if (stats.currentHp < hpBeforeShield)
             {
-                float lostShield = initialHp - stats.currentHp;
                 shieldBroken = true;
-                // Retiramos lo que quede del escudo
-                stats.currentHp = Mathf.Max(stats.currentHp, 0f);
-                // Curamos al jugador según porcentaje de vida actual
-                health.Heal(stats.currentHp * healOnBreakPercent);
+
+                // Cura inmediata al romperse
+                float heal = stats.currentHp * healOnBreakPercent;
+                health.Heal(heal);
                 break;
             }
 
-            elapsed += Time.deltaTime;
+            timer += Time.deltaTime;
             yield return null;
         }
 
-        // Si el escudo no se rompió, otorgamos vida máxima temporal
+        // Si el escudo NO se rompió
         if (!shieldBroken)
         {
             float bonusMaxHp = stats.maxHP.Base * bonusMaxHpPercent;
+
             stats.maxHP.Current += bonusMaxHp;
             health.Heal(bonusMaxHp);
 
             yield return new WaitForSeconds(duration);
 
+            // Retiramos la vida máxima temporal
             stats.maxHP.Current -= bonusMaxHp;
-            // Si la vida actual es mayor que la vida máxima, la ajustamos
             stats.currentHp = Mathf.Min(stats.currentHp, stats.maxHP.Current);
         }
-
-        isActive = false;
     }
 }
