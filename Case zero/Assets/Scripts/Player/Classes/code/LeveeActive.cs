@@ -13,7 +13,7 @@ using UnityEngine.InputSystem;
 [CreateAssetMenu(fileName = "LeveeActive", menuName = "Classes/Actives/LeveeActive")]
 public class LeveeActive : SOClassActive
 {
-    public float duration = 40f;
+    public float duration = 10f;
     public float damageMultiplier = 1.3f;
     public float critBonus = 20f; // +20% prob crit
     public float killBuffDuration = 10f;

@@ -36,4 +36,4 @@ MonoBehaviour:
   xP: 0
   gold: 0
   passive: {fileID: 11400000, guid: 1887f2e544548e747ade479580e54f15, type: 2}
-  active: {fileID: 0}
+  active: {fileID: 11400000, guid: f9e4cede050e3104f88b99709b1db00a, type: 2}

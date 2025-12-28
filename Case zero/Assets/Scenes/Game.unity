@@ -1327,7 +1327,7 @@ PrefabInstance:
     - target: {fileID: 1115671501527194898, guid: 6c38e9f1e6fb86b47bac454f51ccaf59, type: 3}
       propertyPath: pClass
       value: 
-      objectReference: {fileID: 11400000, guid: d3d305b9a57499741b16e05978d1ad34, type: 2}
+      objectReference: {fileID: 11400000, guid: 669e36b0ca12e8841bfa1afc3aa5eafa, type: 2}
     - target: {fileID: 1190756214977489539, guid: 6c38e9f1e6fb86b47bac454f51ccaf59, type: 3}
       propertyPath: roomCollider
       value: 
