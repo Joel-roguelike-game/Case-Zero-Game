@@ -1,16 +1,16 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 /*
  * EnemyCombat
- * 
+ *
  * Gestiona todo el combate del enemigo:
  * - Recepción de daño
- * - Sistema de estabilidad y rotura
- * - Daño recibido
- * - Daño por contacto (melee tipo bruiser)
- * - Interacción con el sistema de parry
- * - Gestión de textos de daño
+ * - Sistema de estabilidad
+ * - Daño por contacto
+ * - Interacción con parry
+ * - Textos de daño
  */
 public class EnemyCombat : MonoBehaviour
 {
@@ -18,28 +18,47 @@ public class EnemyCombat : MonoBehaviour
     public EnemyHealth health;
 
     private DamageText activeDamageText;
-
+    private Dictionary<object, float> damageTakenModifiers =
+        new Dictionary<object, float>();
     [Header("Stability")]
     public float stabilityRegenDelay = 5f;
-
     private Coroutine stabilityRoutine;
+
     private bool parryAffected;
 
-    public float damageMultiplier = 1f;
-    /*
-     * Obtiene referencias a las estadísticas y a la vida del enemigo.
-     */
+    [Header("Contact Damage")]
+    public float contactDamageCooldown = 1f;
+    private bool canDealContactDamage = true;
+
     private void Awake()
     {
         stats = GetComponent<EnemyStats>();
         health = GetComponent<EnemyHealth>();
     }
 
+    public void AddDamageTakenModifier(object source, float percent)
+    {
+        damageTakenModifiers[source] = percent;
+    }
+    
+    public void RemoveDamageTakenModifier(object source)
+    {
+        damageTakenModifiers.Remove(source);
+    }
+    
+    private float GetDamageTakenMultiplier()
+    {
+        if (damageTakenModifiers.Count == 0)
+            return 1f;
+
+        float m = 1f;
+        foreach (float p in damageTakenModifiers.Values)
+            m *= (1f + p);
+
+        return m;
+    }
     /*
-     * Recibe un impacto desde el jugador:
-     * - Aplica rotura de estabilidad
-     * - Aplica daño
-     * - Genera y acumula texto de daño
+     * Recibe un golpe del jugador
      */
     public void ReceiveHit(
         DamageResult result,
@@ -50,73 +69,47 @@ public class EnemyCombat : MonoBehaviour
         if (health == null || health.isDead)
             return;
 
-        // === STABILITY ===
-        if (!stats.stabilityBroken)
-        {
-            stats.currentStability -= stabilityBreak;
-            if (stats.currentStability <= 0f)
-            {
-                stats.currentStability = 0f;
-                stats.stabilityBroken = true;
-            }
-        }
+        HandleStability(stabilityBreak);
 
+        float damageMultiplier = GetDamageTakenMultiplier();
         float finalDamage = result.damage * damageMultiplier;
+
         health.TakeDamage(finalDamage);
-
-
-        int dmgInt = Mathf.FloorToInt(finalDamage);
-
-        Vector3 textPos = transform.position + Vector3.up * 0.5f;
-
-        if (activeDamageText == null)
-        {
-            activeDamageText = DamageTextSpawner.Instance.Spawn(
-                textPos,
-                dmgInt,
-                result.isCrit
-            );
-        }
-        else
-        {
-            activeDamageText.SetWorldPosition(textPos);
-
-            activeDamageText.AddDamage(
-                dmgInt,
-                result.isCrit,
-                DamageTextSpawner.Instance.config
-            );
-        }
+        SpawnDamageText(finalDamage, result.isCrit);
     }
 
     /*
-     * Limpia el texto de daño activo al destruir el enemigo.
+     * Manejo de estabilidad
      */
-    private void OnDestroy()
+    private void HandleStability(float stabilityBreak)
     {
-        if (activeDamageText != null)
-            Destroy(activeDamageText.gameObject);
+        if (stats.stabilityBroken)
+            return;
+
+        stats.currentStability -= stabilityBreak;
+
+        if (stats.currentStability <= 0f)
+        {
+            stats.currentStability = 0f;
+            stats.stabilityBroken = true;
+
+            if (stabilityRoutine != null)
+                StopCoroutine(stabilityRoutine);
+
+            stabilityRoutine = StartCoroutine(RegenerateStability());
+        }
     }
 
-    /*
-     * Regenera completamente la estabilidad tras un tiempo de espera.
-     */
     private IEnumerator RegenerateStability()
     {
-        Debug.Log("Estabilidad rota, regenerando...");
         yield return new WaitForSeconds(stabilityRegenDelay);
 
         stats.currentStability = stats.baseStability;
         stats.stabilityBroken = false;
-        Debug.Log("Estabilidad recuperada");
     }
-    
-    private bool canDealContactDamage = true;
-    public float contactDamageCooldown = 1f;
 
     /*
-     * Daño por contacto continuo mientras el jugador permanece en el collider.
-     * Incluye cooldown para evitar daño constante cada frame.
+     * Daño por contacto
      */
     private void OnTriggerStay2D(Collider2D other)
     {
@@ -126,17 +119,14 @@ public class EnemyCombat : MonoBehaviour
         if (!other.CompareTag("Player"))
             return;
 
-        PlayerHealth ph = other.GetComponent<PlayerHealth>();
-        if (ph == null)
+        PlayerHealth playerHealth = other.GetComponent<PlayerHealth>();
+        if (playerHealth == null)
             return;
 
-        ph.TakeDamage(stats.baseDamage, this);
+        playerHealth.TakeDamage(stats.baseDamage, this);
         StartCoroutine(ContactDamageCooldown());
     }
 
-    /*
-     * Cooldown del daño por contacto.
-     */
     private IEnumerator ContactDamageCooldown()
     {
         canDealContactDamage = false;
@@ -145,24 +135,52 @@ public class EnemyCombat : MonoBehaviour
     }
 
     /*
-     * Marca al enemigo como afectado por un parry.
+     * Parry
      */
     public void SetParryAffected()
     {
         parryAffected = true;
-        Debug.Log("ENEMIGO AFECTADO POR PARRY");
     }
 
-    /*
-     * Consume el estado de parry en el siguiente golpe.
-     */
     public bool ConsumeParryAffected()
     {
         if (!parryAffected)
             return false;
 
         parryAffected = false;
-        Debug.Log("PARRY CONSUMIDO EN ESTE GOLPE");
         return true;
+    }
+
+    /*
+     * Textos de daño
+     */
+    private void SpawnDamageText(float damage, bool isCrit)
+    {
+        int dmgInt = Mathf.FloorToInt(damage);
+        Vector3 pos = transform.position + Vector3.up * 0.5f;
+
+        if (activeDamageText == null)
+        {
+            activeDamageText = DamageTextSpawner.Instance.Spawn(
+                pos,
+                dmgInt,
+                isCrit
+            );
+        }
+        else
+        {
+            activeDamageText.SetWorldPosition(pos);
+            activeDamageText.AddDamage(
+                dmgInt,
+                isCrit,
+                DamageTextSpawner.Instance.config
+            );
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (activeDamageText != null)
+            Destroy(activeDamageText.gameObject);
     }
 }

@@ -7,100 +7,88 @@ using UnityEngine.InputSystem;
  * 
  * Activa: HYPERCONCENTRACION
  * - Si hay un enemigo bajo el cursor, recibe +30% daño durante 10s
- * - Matar al objetivo antes de que termine reduce cooldown a la mitad y aumenta prob. crítica en 20% por 10s
- * - Cooldown base: 40s
+ * - Matar al objetivo antes de que termine devuelve la mitad del focus y aumenta prob. crítica en 20% por 10s
  */
 [CreateAssetMenu(fileName = "LeveeActive", menuName = "Classes/Actives/LeveeActive")]
 public class LeveeActive : SOClassActive
 {
     public float duration = 10f;
-    public float damageMultiplier = 1.3f;
-    public float critBonus = 20f; // +20% prob crit
+    public float damageBonusPercent = 0.30f; // +30%
+    public float critChanceBonus = 20f;      // +20% crit
     public float killBuffDuration = 10f;
+    public float focusOnKill = 25f;
 
     private EnemyCombat targetEnemy;
 
     public override void Activar(PlayerStats stats)
     {
-        // Buscamos enemigo bajo cursor
         targetEnemy = FindEnemyUnderCursor();
         if (targetEnemy == null)
-        {
-            //Debug.Log("No hay enemigo bajo cursor. Activa no usada.");
-            return; // no se activa ni se consume cooldown
-        }
+            return;
 
-        // Solo se registra el uso si hay enemigo
-        stats.lastActiveTime = Time.time; // <--- mueve aquí
-        Debug.Log("Activa HYPERCONCENTRACION activada");
         stats.StartCoroutine(ApplyActive(stats));
     }
-
-
 
     /*
      * Rutina que aplica el efecto sobre el enemigo seleccionado
      */
     private IEnumerator ApplyActive(PlayerStats stats)
     {
-        // targetEnemy
-        targetEnemy = FindEnemyUnderCursor();
-        if (targetEnemy == null) yield break;
-        else Debug.Log("enemigo correctamente hyperconcentrado.");
-
-        targetEnemy.damageMultiplier *= damageMultiplier;
-
-        // Guardamos el tiempo de inicio
         float startTime = Time.time;
-        Debug.Log("EN COOLDOWN");
 
-        // Bucle durante la duración
+        // Aplicamos vulnerabilidad contra Levee
+        targetEnemy.AddDamageTakenModifier(stats, damageBonusPercent);
+
+        // Subimos la probabilidad de crítico usando AddFlat
+        stats.critChance.AddFlat(critChanceBonus);
+
+        bool targetKilled = false;
+
         while (Time.time < startTime + duration)
         {
-            if (targetEnemy.health.isDead)
-            { 
-                Debug.Log("Objetivo muerto durante HYPERCONCENTRACION, aplicando bonus crit");
-                stats.critChance.Current += critBonus;
-                Debug.Log("Cooldown sin reducir, next usable en: " + (stats.lastActiveTime + stats.classActive.cooldown));
+            if (targetEnemy == null || targetEnemy.health == null)
+                break;
 
-                float elapsed = Time.time - stats.lastActiveTime;
-                float remainingCooldown = stats.classActive.cooldown - elapsed;
-                stats.lastActiveTime -= remainingCooldown * 0.5f; //ajusta el cooldown restante
-                Debug.Log("Cooldown reducido, next usable en: " + (stats.lastActiveTime + stats.classActive.cooldown));
-                yield return new WaitForSeconds(killBuffDuration);
-                Debug.Log("buff de crit terminado");
-                stats.critChance.Current -= critBonus;
+            if (targetEnemy.health.isDead)
+            {
+                targetKilled = true;
                 break;
             }
+
             yield return null;
         }
-        Debug.Log("HABILIDAD TERMINO!");
-        if (!targetEnemy.health.isDead)
-            targetEnemy.damageMultiplier /= damageMultiplier;
-    }
 
+        // Quitamos vulnerabilidad
+        if (targetEnemy != null)
+            targetEnemy.RemoveDamageTakenModifier(stats);
+
+        // Restauramos critChance
+        stats.critChance.AddFlat(-critChanceBonus);
+
+        // Si murió a tiempo → recompensa en focus
+        if (targetKilled)
+        {
+            stats.currentFocus = Mathf.Min(
+                stats.currentFocus + focusOnKill,
+                stats.maxFocus.Current
+            );
+        }
+    }
 
     /*
      * Detecta enemigo bajo cursor
      */
     private EnemyCombat FindEnemyUnderCursor()
     {
-        // Obtenemos la posición del mouse en pantalla
         Vector3 mouseScreenPos = Mouse.current.position.ReadValue();
+        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(
+            new Vector3(mouseScreenPos.x, mouseScreenPos.y, 10f)
+        );
 
-        // Convertimos a world position usando z = 10 (distancia desde cámara)
-        // Porque la cámara está en z = -10 y el plano de juego en z = 0
-        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(new Vector3(mouseScreenPos.x, mouseScreenPos.y, 10f));
-
-        // Usamos OverlapCircle para tolerancia, 0.1f de radio
         Collider2D hit = Physics2D.OverlapCircle(mouseWorldPos, 0.1f);
         if (hit != null && hit.CompareTag("Enemy"))
-        {
             return hit.GetComponent<EnemyCombat>();
-        }
 
-        //Debug.Log("No hay enemigo bajo el cursor: " + mouseWorldPos);
         return null;
     }
-
 }

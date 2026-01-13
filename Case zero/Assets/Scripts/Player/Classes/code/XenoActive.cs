@@ -24,10 +24,7 @@ public class XenoActive : SOClassActive
 
     public override void Activar(PlayerStats stats)
     {
-        if (Time.time < stats.lastActiveTime + cooldown)
-            return;
-
-        stats.lastActiveTime = Time.time;
+        // Se ejecuta inmediatamente, sin cooldown de tiempo
         stats.StartCoroutine(ApplyActive(stats));
     }
 
@@ -38,14 +35,11 @@ public class XenoActive : SOClassActive
     {
         PlayerHealth health = stats.GetComponent<PlayerHealth>();
 
-        // Vida que falta
         float missingHp = stats.maxHP.Current - stats.currentHp;
-
-        // Escudo como vida temporal
         float shieldAmount = missingHp * missingHpPercent;
         float hpBeforeShield = stats.currentHp;
 
-        // Aplicamos el "escudo"
+        // Escudo como curación temporal
         health.Heal(shieldAmount);
 
         bool shieldBroken = false;
@@ -53,12 +47,10 @@ public class XenoActive : SOClassActive
 
         while (timer < duration)
         {
-            // Si la vida baja del valor previo al escudo → se rompió
             if (stats.currentHp < hpBeforeShield)
             {
                 shieldBroken = true;
 
-                // Cura inmediata al romperse
                 float heal = stats.currentHp * healOnBreakPercent;
                 health.Heal(heal);
                 break;
@@ -68,18 +60,20 @@ public class XenoActive : SOClassActive
             yield return null;
         }
 
-        // Si el escudo NO se rompió
+        // Si el escudo aguanta
         if (!shieldBroken)
         {
             float bonusMaxHp = stats.maxHP.Base * bonusMaxHpPercent;
 
-            stats.maxHP.Current += bonusMaxHp;
+            // Añadimos flat bonus a maxHP usando AddFlat
+            stats.maxHP.AddFlat(bonusMaxHp);
             health.Heal(bonusMaxHp);
 
             yield return new WaitForSeconds(duration);
 
-            // Retiramos la vida máxima temporal
-            stats.maxHP.Current -= bonusMaxHp;
+            stats.maxHP.AddFlat(-bonusMaxHp);
+
+            // Ajustamos currentHp si supera el máximo
             stats.currentHp = Mathf.Min(stats.currentHp, stats.maxHP.Current);
         }
     }

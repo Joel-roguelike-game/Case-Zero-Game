@@ -1,13 +1,13 @@
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "SOPlayerClass", menuName = "Classes/Player Class")]
-/*Crea las estadisticaas del jugador en un ScriptableObject*/
+/*Crea las estadisticas del jugador en un ScriptableObject*/
 public class SOPlayerClass : ScriptableObject
 {
     [Header("Stats Base")]
     public SOWeapon weaponMelee;
     public SOWeapon weaponRanged;
-    
+
     [Header("Stats Base")]
     public float maxHP = 100f;
     public float maxStamina = 50f;
@@ -19,6 +19,10 @@ public class SOPlayerClass : ScriptableObject
     public float atkSpeedCaC = 1f;
     public float atkSpeedDist = 1f;
     public int actualAmmo = 20;
+
+    [Header("Focus")]
+    public float maxFocus = 100f;
+    public float focusRegen = 0f;
 
     [Header("Modificadores Base")]
     public float parryMultiplier = 3f;

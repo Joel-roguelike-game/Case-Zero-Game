@@ -18,15 +18,17 @@ public class XenoPassive : SOClassPassive
 
     public override void Activate(PlayerStats stats)
     {
-        // Iniciamos el cálculo dinámico (sin guardar estado en el SO)
         stats.StartCoroutine(UpdateBonus(stats));
     }
 
     public override void Deactivate(PlayerStats stats)
     {
-        // Al desactivar, restauramos los valores base
-        stats.caCDmg.Current = stats.baseCaCDmgRuntime;
-        stats.distDmg.Current = stats.baseDistDmgRuntime;
+        // Eliminamos solo el bonus de Xeno
+        stats.caCDmg.FlatBonus = 0f;
+        stats.distDmg.FlatBonus = 0f;
+
+        stats.caCDmg.Recalculate();
+        stats.distDmg.Recalculate();
     }
 
     /*
@@ -45,10 +47,14 @@ public class XenoPassive : SOClassPassive
 
             float totalBonus = bonusFromMaxHp + bonusFromMissingHp;
 
-            stats.caCDmg.Current = stats.baseCaCDmgRuntime + totalBonus;
-            stats.distDmg.Current = stats.baseDistDmgRuntime + totalBonus;
+            stats.caCDmg.FlatBonus = totalBonus;
+            stats.distDmg.FlatBonus = totalBonus;
 
-            yield return null; // se recalcula constantemente
+            stats.caCDmg.Recalculate();
+            stats.distDmg.Recalculate();
+
+            yield return null;
         }
     }
+
 }

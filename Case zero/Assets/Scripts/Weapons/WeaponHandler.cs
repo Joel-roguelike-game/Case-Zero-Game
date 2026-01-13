@@ -130,7 +130,7 @@ public class WeaponHandler : MonoBehaviour
      */
     public void UseRanged()
     {
-        if (stats.actualAmmo.Current <= 0)
+        if (stats.currentAmmo <= 0)
             return;
 
         Vector2 baseDir = GetMouseDirection();
@@ -145,7 +145,7 @@ public class WeaponHandler : MonoBehaviour
             ShootProjectile(stats.weaponRanged, dir, 1f);
         }
 
-        stats.actualAmmo.Current--;
+        stats.currentAmmo--;
     }
 
     /*

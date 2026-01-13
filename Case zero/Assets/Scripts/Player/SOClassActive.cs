@@ -3,7 +3,7 @@ using UnityEngine;
 
 public abstract class SOClassActive : ScriptableObject
 {
-    public float cooldown = 10f; // cooldown base
+    public float focusCost = 100f; // coste base
     public abstract void Activar(PlayerStats stats);
 }
 

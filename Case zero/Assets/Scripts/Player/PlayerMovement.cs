@@ -182,14 +182,17 @@ public class PlayerMovement : MonoBehaviour
         canParry = false;
         isParrying = true;
 
-        float originalSpeed = stats.moveSpeed.Current;
-        stats.moveSpeed.Current *= 0.2f;
+        // Aplicamos ralentización temporal
+        stats.moveSpeed.AddMultiplier(0.2f);
 
         GetComponent<PlayerHealth>().StartParryInvulnerability(0.15f);
 
         yield return new WaitForSeconds(0.15f);
 
-        stats.moveSpeed.Current = originalSpeed;
+        // Restauramos velocidad
+        stats.moveSpeed.Multiplier = 1f;
+        stats.moveSpeed.Recalculate();
+
         isParrying = false;
 
         yield return new WaitForSeconds(2.85f);

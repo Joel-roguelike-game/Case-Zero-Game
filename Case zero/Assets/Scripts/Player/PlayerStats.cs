@@ -27,7 +27,8 @@ public class PlayerStats : MonoBehaviour
     public StatValue moveSpeed;
     public StatValue atkSpeedCaC;
     public StatValue atkSpeedDist;
-    public StatValue actualAmmo;
+    public int currentAmmo;
+    public int maxAmmo;
 
     public StatValue parryMultiplier;
     public StatValue stabilityMultiplier;
@@ -37,6 +38,11 @@ public class PlayerStats : MonoBehaviour
     public StatValue lifestealPercent;
     public StatValue lifestealFlat;
     public StatValue caCRange;
+
+    // === FOCUS (HABILIDADES ACTIVAS) ===
+    public StatValue maxFocus;
+    public StatValue focusRegen;
+    public float currentFocus;
 
     // === PROGRESIÓN ===
     public int level;
@@ -48,8 +54,8 @@ public class PlayerStats : MonoBehaviour
     public float currentStamina;
 
     // Valores base runtime (ya con ítems, nivel, buffs PERMANENTES)
-     public float baseCaCDmgRuntime;
-     public float baseDistDmgRuntime;
+    public float baseCaCDmgRuntime;
+    public float baseDistDmgRuntime;
 
     private float staminaRegenTimer;
 
@@ -92,8 +98,7 @@ public class PlayerStats : MonoBehaviour
         moveSpeed = new StatValue(data.moveSpeed);
         atkSpeedCaC = new StatValue(data.atkSpeedCaC);
         atkSpeedDist = new StatValue(data.atkSpeedDist);
-        actualAmmo = new StatValue(data.actualAmmo);
-
+        currentAmmo = data.actualAmmo;
         parryMultiplier = new StatValue(data.parryMultiplier);
         stabilityMultiplier = new StatValue(data.stabilityMultiplier);
         dodgeSpeed = new StatValue(data.dodgeSpeed);
@@ -103,18 +108,24 @@ public class PlayerStats : MonoBehaviour
         lifestealFlat = new StatValue(data.lifestealFlat);
         caCRange = new StatValue(data.caCRange);
 
+        // Focus
+        maxFocus = new StatValue(data.maxFocus);
+        focusRegen = new StatValue(data.focusRegen);
+        currentFocus = maxFocus.Base;
+
         // Progresión
         level = data.level;
         xP = data.xP;
         gold = data.gold;
+        
 
         // Vida / stamina inicial
         currentHp = maxHP.Base;
         currentStamina = maxStamina.Base;
 
-        // Guardamos los valores BASE reales de daño (clave para Xeno)
-        baseCaCDmgRuntime = caCDmg.Current;
-        baseDistDmgRuntime = distDmg.Current;
+        // Guardamos los valores BASE reales de daño
+        baseCaCDmgRuntime = caCDmg.Base;
+        baseDistDmgRuntime = distDmg.Base;
 
         classPassive = data.passive;
         classActive = data.active;
@@ -126,7 +137,6 @@ public class PlayerStats : MonoBehaviour
 
     /*
      * Consume stamina si hay suficiente.
-     * Devuelve true si el consumo fue exitoso.
      */
     public bool ConsumeStamina(float amount)
     {
@@ -139,8 +149,19 @@ public class PlayerStats : MonoBehaviour
     }
 
     /*
+     * Consume focus si hay suficiente.
+     */
+    public bool ConsumeFocus(float amount)
+    {
+        if (currentFocus < amount)
+            return false;
+
+        currentFocus -= amount;
+        return true;
+    }
+
+    /*
      * Controla la regeneración de stamina.
-     * Se llama desde Update si el jugador está en estado válido.
      */
     public void RegenerateStamina(bool canRegen)
     {
@@ -165,6 +186,18 @@ public class PlayerStats : MonoBehaviour
     }
 
     /*
+     * Regeneración de focus. (no la uso todavia)
+     */
+    /*private void Update()
+    {
+        if (focusRegen.Current > 0f)
+        {
+            currentFocus += focusRegen.Current * Time.deltaTime;
+            currentFocus = Mathf.Min(currentFocus, maxFocus.Current);
+        }
+    }*/
+
+    /*
      * Intenta activar la habilidad activa de la clase
      * respetando el cooldown.
      */
@@ -173,15 +206,10 @@ public class PlayerStats : MonoBehaviour
         if (classActive == null)
             return;
 
-        if (Time.time < lastActiveTime + classActive.cooldown)
-        {
-            Debug.Log(
-                "Habilidad en Cooldown: " +
-                Time.time + "/" + (lastActiveTime + classActive.cooldown)
-            );
+        if (!ConsumeFocus(classActive.focusCost))
             return;
-        }
 
         classActive.Activar(this);
     }
+
 }

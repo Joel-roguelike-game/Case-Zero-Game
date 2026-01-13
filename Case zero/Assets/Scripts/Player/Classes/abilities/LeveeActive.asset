@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1cc4ccf9585dca43b42b2b7df0594be, type: 3}
   m_Name: LeveeActive
   m_EditorClassIdentifier: Assembly-CSharp::LeveeActive
-  cooldown: 40
+  focusCost: 100
   duration: 10
-  damageMultiplier: 1.3
-  critBonus: 20
+  damageBonusPercent: 0.3
+  critChanceBonus: 20
   killBuffDuration: 10
+  focusOnKill: 25
