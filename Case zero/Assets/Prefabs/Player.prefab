@@ -267,7 +267,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 159221ee36af7b34786ce9deb32b536b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
-  pClass: {fileID: 11400000, guid: d3d305b9a57499741b16e05978d1ad34, type: 2}
+  pClass: {fileID: 11400000, guid: 669e36b0ca12e8841bfa1afc3aa5eafa, type: 2}
   weaponMelee: {fileID: 0}
   weaponRanged: {fileID: 0}
   maxHP:

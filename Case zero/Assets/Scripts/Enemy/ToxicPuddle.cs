@@ -11,7 +11,13 @@ public class ToxicPuddle : MonoBehaviour
     public float lifeTime = 5f;
     public float damagePerSecond = 5f;
     private float timer;
+    private EnemyCombat source;
 
+    public void Init(EnemyCombat enemySource)
+    {
+        source = enemySource;
+    }
+    
     /*
      * Controla la duración del charco.
      */
@@ -33,6 +39,6 @@ public class ToxicPuddle : MonoBehaviour
         if (!other.CompareTag("Player")) return;
         
         other.GetComponent<PlayerHealth>()
-            ?.TakeDamage(tickDamage, null);
+            ?.TakeDamage(tickDamage, source);
     }
 }

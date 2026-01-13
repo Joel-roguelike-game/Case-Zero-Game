@@ -16,6 +16,7 @@ public class EnemyShooterAI : MonoBehaviour
     private Transform player;
     private EnemyStats stats;
     private float nextShootTime;
+    private EnemyCombat source;
 
     /*
      * Inicializa referencias al jugador y a las estadísticas del enemigo.
@@ -24,6 +25,7 @@ public class EnemyShooterAI : MonoBehaviour
     {
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
         stats = GetComponent<EnemyStats>();
+        source = GetComponent<EnemyCombat>();
     }
 
     /*
@@ -70,7 +72,7 @@ public class EnemyShooterAI : MonoBehaviour
         );
 
         EnemyProjectile ep = proj.GetComponent<EnemyProjectile>();
-        ep.Init(dir, stats.baseDamage);
+        ep.Init(dir, stats.baseDamage, source);
 
         nextShootTime = Time.time + shootCooldown;
     }

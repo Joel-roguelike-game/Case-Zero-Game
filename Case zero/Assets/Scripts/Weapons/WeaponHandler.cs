@@ -130,7 +130,7 @@ public class WeaponHandler : MonoBehaviour
      */
     public void UseRanged()
     {
-        if (stats.actualAmmo.Current <= 0)
+        if (stats.currentAmmo <= 0)
             return;
 
         Vector2 baseDir = GetMouseDirection();
@@ -145,7 +145,7 @@ public class WeaponHandler : MonoBehaviour
             ShootProjectile(stats.weaponRanged, dir, 1f);
         }
 
-        stats.actualAmmo.Current--;
+        stats.currentAmmo--;
     }
 
     /*
@@ -156,7 +156,7 @@ public class WeaponHandler : MonoBehaviour
         if (weapon.weaponName == "Ballesta" || weapon.weaponName == "Rifle")
             return 0f;
 
-        return weapon.weaponName == "Escopeta" ? 35f : 10f;
+        return weapon.weaponName == "Escopeta" ? 25f : 10f;
     }
 
     /*
@@ -175,7 +175,7 @@ public class WeaponHandler : MonoBehaviour
     {
         for (int i = 0; i < 5; i++)
         {
-            Vector2 dir = ApplySpread(baseDir, 35f);
+            Vector2 dir = ApplySpread(baseDir, 25f);
             ShootProjectile(stats.weaponRanged, dir, 1f);
         }
     }

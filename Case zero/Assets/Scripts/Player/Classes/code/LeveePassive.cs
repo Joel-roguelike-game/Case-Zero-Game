@@ -8,7 +8,7 @@ public class LeveePassive : SOClassPassive
     public float moveSpeedBonus = 0.2f;
     public float duration = 1f;
     public float healPercent = 0.05f;
-    public float cooldown = 4f;
+    public float cooldown = 5f;
 
     private readonly Dictionary<PlayerStats, float> lastProcTimes = new(); //Map<> 
 
@@ -32,7 +32,11 @@ public class LeveePassive : SOClassPassive
             lastTime = -999f;
 
         if (Time.time < lastTime + cooldown)
+        {
+            Debug.Log("esta en cooldown");
             return;
+        }
+            
 
         lastProcTimes[stats] = Time.time;
         stats.StartCoroutine(Apply(stats));
@@ -40,11 +44,18 @@ public class LeveePassive : SOClassPassive
 
     private IEnumerator Apply(PlayerStats stats)
     {
+        //Debug.Log("Aplicando");
+
         float heal = stats.maxHP.Current * healPercent;
         stats.currentHp = Mathf.Min(stats.currentHp + heal, stats.maxHP.Current);
 
-        stats.moveSpeed.Current *= (1f + moveSpeedBonus);
+        stats.moveSpeed.AddPercent(moveSpeedBonus);
+
         yield return new WaitForSeconds(duration);
-        stats.moveSpeed.Current /= (1f + moveSpeedBonus);
+        //Debug.Log("Eliminando buff");
+
+        stats.moveSpeed.PercentBonus -= moveSpeedBonus;
+        stats.moveSpeed.Recalculate();
     }
+
 }
