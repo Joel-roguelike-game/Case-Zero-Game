@@ -1,9 +1,12 @@
 using UnityEngine;
-/*Clase que se encarga de los calculos de daño del jugador. */
+/*
+ * DamageCalculator
+ * Calcula el daño del jugador y genera un DamageContext
+ */
 public static class DamageCalculator
 {
     
-    public static DamageResult CalculatePlayerDamage(
+    public static DamageContext CalculatePlayerDamage(
         PlayerStats playerStats,    // <--- PASAMOS EL PLAYERSTATS
         float flat,
         float percent,
@@ -13,7 +16,8 @@ public static class DamageCalculator
         bool isParry,
         float parryMult,
         bool stabilityBroken,
-        float stabilityMult
+        float stabilityMult,
+        SOClassActive activeSource
     )
     {
         float baseDamage = flat + ((percent/100) * playerDamage); //daño base
@@ -29,14 +33,16 @@ public static class DamageCalculator
 
         float finalDamage = baseDamage * critMultiplier * extraMultiplier;
 
-        DamageResult result = new DamageResult
+        DamageContext ctx = new DamageContext
         {
             damage = finalDamage,
-            isCrit = isCrit
+            isCrit = isCrit,
+            source = playerStats,
+            activeSource = activeSource
         };
         
-        CombatEvents.OnPlayerHit?.Invoke(playerStats, result);
+        CombatEvents.OnPlayerHit?.Invoke(playerStats, ctx);
 
-        return result;
+        return ctx;
     }
 }

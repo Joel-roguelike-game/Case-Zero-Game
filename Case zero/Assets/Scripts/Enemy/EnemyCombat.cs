@@ -61,7 +61,7 @@ public class EnemyCombat : MonoBehaviour
      * Recibe un golpe del jugador
      */
     public void ReceiveHit(
-        DamageResult result,
+        DamageContext ctx,
         float stabilityBreak,
         float playerStabilityMultiplier
     )
@@ -72,11 +72,12 @@ public class EnemyCombat : MonoBehaviour
         HandleStability(stabilityBreak);
 
         float damageMultiplier = GetDamageTakenMultiplier();
-        float finalDamage = result.damage * damageMultiplier;
+        float finalDamage = ctx.damage * damageMultiplier;
 
-        health.TakeDamage(finalDamage);
-        SpawnDamageText(finalDamage, result.isCrit);
+        health.TakeDamage(ctx);
+        SpawnDamageText(finalDamage, ctx.isCrit);
     }
+
 
     /*
      * Manejo de estabilidad

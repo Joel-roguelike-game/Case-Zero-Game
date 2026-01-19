@@ -1,67 +1,48 @@
 using UnityEngine;
 
 /*
- Representa un ataque cuerpo a cuerpo del jugador.
- Se instancia como una hitbox temporal orientada hacia el ratón.
- Aplica daño, rotura de estabilidad y tiene una vida muy corta.
-*/
+ * Ataque cuerpo a cuerpo del jugador
+ */
 public class MeleeSlash : MonoBehaviour
 {
-    [Header("Owner")]
     public PlayerStats owner;
 
-    [Header("Attack Data")]
-    public float damage;
     public float stabilityBreak;
     public float stabilityMultiplier;
 
     public Vector2 direction;
 
-    [Header("Lifetime")]
     public float duration = 0.15f;
     private float timer;
-
     private bool hasHit;
 
-    /*
-     * Inicializa el ataque:
-     * - Rota el slash según la dirección
-     * - Escala el tamaño según el rango CaC del jugador
-     * - Posiciona el slash desde el borde del collider del jugador
-     */
     private void Start()
     {
-
         direction.Normalize();
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0, 0, angle - 45f);
+
         float range = owner.caCRange.Current;
         transform.localScale = new Vector3(range, range, 1f);
-        
+
         Collider2D playerCol = owner.GetComponent<Collider2D>();
         Collider2D slashCol = GetComponent<Collider2D>();
 
-        if (playerCol != null && slashCol != null)
+        if (playerCol && slashCol)
         {
-            // Punto del borde del jugador en la dirección del ataque
-            Vector2 edgePoint = playerCol.bounds.ClosestPoint(
+            Vector2 edge = playerCol.bounds.ClosestPoint(
                 playerCol.bounds.center + (Vector3)direction * 10f
             );
 
-            // Tamaño del slash en la dirección del ataque
-            float slashExtent =
-                Mathf.Max(slashCol.bounds.extents.x, slashCol.bounds.extents.y);
+            float extent = Mathf.Max(
+                slashCol.bounds.extents.x,
+                slashCol.bounds.extents.y
+            );
 
-            // Posicionar el centro del slash fuera del jugador
-            transform.position = edgePoint + direction * slashExtent;
+            transform.position = edge + direction * extent;
         }
-
     }
 
-    /*
-     * Controla la duración del ataque.
-     * Al terminar su tiempo de vida, se destruye.
-     */
     private void Update()
     {
         timer += Time.deltaTime;
@@ -69,23 +50,18 @@ public class MeleeSlash : MonoBehaviour
             Destroy(gameObject);
     }
 
-    /*
-     * Detecta colisión con enemigos.
-     * Calcula el daño final y lo envía al sistema de combate enemigo.
-     */
-    private void OnTriggerEnter2D(Collider2D collision)
+    private void OnTriggerEnter2D(Collider2D col)
     {
         if (hasHit) return;
 
-        EnemyCombat enemy = collision.GetComponent<EnemyCombat>();
-        if (enemy == null)
-            return;
+        EnemyCombat enemy = col.GetComponent<EnemyCombat>();
+        if (!enemy) return;
 
         hasHit = true;
 
         bool isParry = enemy.ConsumeParryAffected();
 
-        DamageResult result = DamageCalculator.CalculatePlayerDamage(
+        DamageContext ctx = DamageCalculator.CalculatePlayerDamage(
             owner,
             owner.weaponMelee.flatDamage,
             owner.weaponMelee.damagePercent,
@@ -95,14 +71,20 @@ public class MeleeSlash : MonoBehaviour
             isParry,
             owner.parryMultiplier.Current,
             enemy.GetComponent<EnemyStats>().stabilityBroken,
-            owner.stabilityMultiplier.Current
+            owner.stabilityMultiplier.Current,
+            null
+        );
+
+        Debug.Log(
+            $"[MeleeSlash] HIT → dmg:{ctx.damage} crit:{ctx.isCrit}"
         );
 
         enemy.ReceiveHit(
-            result,
+            ctx,
             stabilityBreak,
             owner.stabilityMultiplier.Current
         );
+
         owner.GetComponent<PlayerHealth>()
             ?.TryApplyLifesteal();
     }

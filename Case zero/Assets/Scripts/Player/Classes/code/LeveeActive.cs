@@ -1,94 +1,94 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.InputSystem;
+using System.Collections.Generic;
 
-/*
- * LeveeActive
- * 
- * Activa: HYPERCONCENTRACION
- * - Si hay un enemigo bajo el cursor, recibe +30% daño durante 10s
- * - Matar al objetivo antes de que termine devuelve la mitad del focus y aumenta prob. crítica en 20% por 10s
- */
-[CreateAssetMenu(fileName = "LeveeActive", menuName = "Classes/Actives/LeveeActive")]
+[CreateAssetMenu(menuName = "Classes/Actives/LeveeActive")]
 public class LeveeActive : SOClassActive
 {
-    public float duration = 10f;
-    public float damageBonusPercent = 0.30f; // +30%
-    public float critChanceBonus = 20f;      // +20% crit
-    public float killBuffDuration = 10f;
+    public float duration = 8f;
+    public float baseDamageBonus = 0.20f;
+    public float moveSpeedScaling = 0.20f;
     public float focusOnKill = 25f;
 
-    private EnemyCombat targetEnemy;
+    private readonly HashSet<PlayerStats> activePlayers = new();
+    private EnemyCombat target;
+
+    public bool IsRunning(PlayerStats stats)
+        => activePlayers.Contains(stats);
 
     public override void Activar(PlayerStats stats)
     {
-        targetEnemy = FindEnemyUnderCursor();
-        if (targetEnemy == null)
-            return;
+        Debug.Log($"[LeveeActive] Try activate | Focus:{stats.currentFocus}");
 
-        stats.StartCoroutine(ApplyActive(stats));
+        if (!stats.ConsumeFocus(focusCost))
+        {
+            Debug.Log("[LeveeActive] ❌ Focus insuficiente");
+            return;
+        }
+
+        target = FindEnemyUnderCursor();
+        if (!target)
+        {
+            Debug.Log("[LeveeActive] ❌ Sin objetivo");
+            return;
+        }
+
+        stats.StartCoroutine(Run(stats));
     }
 
-    /*
-     * Rutina que aplica el efecto sobre el enemigo seleccionado
-     */
-    private IEnumerator ApplyActive(PlayerStats stats)
+    private IEnumerator Run(PlayerStats stats)
     {
-        float startTime = Time.time;
+        activePlayers.Add(stats);
+        Debug.Log("[LeveeActive] ACTIVA RUNNING");
 
-        // Aplicamos vulnerabilidad contra Levee
-        targetEnemy.AddDamageTakenModifier(stats, damageBonusPercent);
+        float bonus =
+            baseDamageBonus +
+            (stats.moveSpeed.Current * moveSpeedScaling);
 
-        // Subimos la probabilidad de crítico usando AddFlat
-        stats.critChance.AddFlat(critChanceBonus);
+        Debug.Log($"[LeveeActive] Vulnerability +{bonus * 100:F1}%");
 
-        bool targetKilled = false;
+        target.AddDamageTakenModifier(this, bonus);
 
-        while (Time.time < startTime + duration)
+        float end = Time.time + duration;
+        bool killed = false;
+
+        while (Time.time < end)
         {
-            if (targetEnemy == null || targetEnemy.health == null)
-                break;
-
-            if (targetEnemy.health.isDead)
+            if (!target || target.health.isDead)
             {
-                targetKilled = true;
+                killed = true;
                 break;
             }
 
             yield return null;
         }
 
-        // Quitamos vulnerabilidad
-        if (targetEnemy != null)
-            targetEnemy.RemoveDamageTakenModifier(stats);
+        if (target)
+            target.RemoveDamageTakenModifier(this);
 
-        // Restauramos critChance
-        stats.critChance.AddFlat(-critChanceBonus);
+        activePlayers.Remove(stats);
+        Debug.Log("[LeveeActive] ACTIVA END");
 
-        // Si murió a tiempo → recompensa en focus
-        if (targetKilled)
+        if (killed)
         {
             stats.currentFocus = Mathf.Min(
                 stats.currentFocus + focusOnKill,
                 stats.maxFocus.Current
             );
+
+            Debug.Log($"[LeveeActive] Kill bonus → +{focusOnKill} Focus");
         }
     }
 
-    /*
-     * Detecta enemigo bajo cursor
-     */
     private EnemyCombat FindEnemyUnderCursor()
     {
-        Vector3 mouseScreenPos = Mouse.current.position.ReadValue();
-        Vector3 mouseWorldPos = Camera.main.ScreenToWorldPoint(
-            new Vector3(mouseScreenPos.x, mouseScreenPos.y, 10f)
+        Vector3 m = Mouse.current.position.ReadValue();
+        Vector3 w = Camera.main.ScreenToWorldPoint(
+            new Vector3(m.x, m.y, 10f)
         );
 
-        Collider2D hit = Physics2D.OverlapCircle(mouseWorldPos, 0.1f);
-        if (hit != null && hit.CompareTag("Enemy"))
-            return hit.GetComponent<EnemyCombat>();
-
-        return null;
+        Collider2D hit = Physics2D.OverlapCircle(w, 0.1f);
+        return hit ? hit.GetComponent<EnemyCombat>() : null;
     }
 }

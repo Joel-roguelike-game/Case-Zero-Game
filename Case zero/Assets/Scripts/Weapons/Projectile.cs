@@ -1,25 +1,19 @@
 using UnityEngine;
 
 /*
- Proyectil del jugador.
- Se desplaza en línea recta, aplica daño al impactar
- y se destruye tras colisionar o al acabar su vida útil.
-*/
+ * Proyectil del jugador
+ */
 public class Projectile : MonoBehaviour
 {
     public float speed = 100f;
     public Vector2 direction;
     public float lifeTime = 3f;
 
-    public float damageMultiplier = 1f;
     public PlayerStats owner;
 
     private float timer;
     private bool hasHit;
 
-    /*
-     * Mueve el proyectil y controla su tiempo de vida.
-     */
     private void Update()
     {
         transform.position += (Vector3)direction * speed * Time.deltaTime;
@@ -29,28 +23,19 @@ public class Projectile : MonoBehaviour
             Destroy(gameObject);
     }
 
-    /*
-     * Detecta impacto con enemigos.
-     * Calcula daño final y lo aplica mediante EnemyCombat.
-     */
     private void OnTriggerEnter2D(Collider2D other)
     {
-        EnemyHealth eh = other.GetComponent<EnemyHealth>();
-        if (eh == null || eh.isDead)
-            return; // control para muertos o nulos
-
-        if (hasHit)
-            return;
+        if (hasHit) return;
 
         EnemyCombat enemy = other.GetComponentInParent<EnemyCombat>();
-        if (enemy == null)
+        if (!enemy || enemy.health.isDead)
             return;
 
         hasHit = true;
 
         bool isParry = enemy.ConsumeParryAffected();
 
-        DamageResult result = DamageCalculator.CalculatePlayerDamage(
+        DamageContext ctx = DamageCalculator.CalculatePlayerDamage(
             owner,
             owner.weaponRanged.flatDamage,
             owner.weaponRanged.damagePercent,
@@ -60,17 +45,22 @@ public class Projectile : MonoBehaviour
             isParry,
             owner.parryMultiplier.Current,
             enemy.GetComponent<EnemyStats>().stabilityBroken,
-            owner.stabilityMultiplier.Current
+            owner.stabilityMultiplier.Current,
+            null
+        );
+
+        Debug.Log(
+            $"[Projectile] HIT → dmg:{ctx.damage} crit:{ctx.isCrit}"
         );
 
         enemy.ReceiveHit(
-            result,
+            ctx,
             owner.weaponRanged.stabilityBreak,
             owner.stabilityMultiplier.Current
         );
+
         owner.GetComponent<PlayerHealth>()
             ?.TryApplyLifesteal();
-
 
         Destroy(gameObject);
     }

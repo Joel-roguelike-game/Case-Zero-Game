@@ -18,8 +18,8 @@ MonoBehaviour:
   maxStamina: 50
   caCDmg: 10
   distDmg: 10
-  critChance: 20
-  critDamage: 200
+  critChance: 10
+  critDamage: 150
   moveSpeed: 10
   atkSpeedCaC: 1
   atkSpeedDist: 1
@@ -37,5 +37,5 @@ MonoBehaviour:
   level: 1
   xP: 0
   gold: 0
-  passive: {fileID: 11400000, guid: 6f347a9f28cd079439d243ee3218ad47, type: 2}
-  active: {fileID: 11400000, guid: 8544e8cdb39b67d4b9abc468d680c1f4, type: 2}
+  passive: {fileID: 11400000, guid: 1c5c87a819cddc94bad0ff4ae3fe9bcd, type: 2}
+  active: {fileID: 11400000, guid: 426fd9bc4ebc5044c9aa55ff5bbc206f, type: 2}
