@@ -3,78 +3,116 @@ using UnityEngine;
 
 /*
  * XenoActive
- * 
- * Activa: Fuerza imparable
- * - Otorga un escudo equivalente al 30% de la vida faltante durante 10s
- * - Si el escudo se rompe:
- *      • Cura instantáneamente un 25% de la vida actual
- * - Si el escudo aguanta:
- *      • Consume el escudo
- *      • Otorga +25% de vida máxima base durante 10s
- *      • Cura esa cantidad
- * - Cooldown: definido en SOClassActive
+ *
+ * Activa: El Imperecedero
+ * - Estado durante 10s
+ * - +30% vida máxima
+ * - Cura 4% de vida máxima por segundo
+ * - +50% rango CaC
+ * - Cada golpe recibido:
+ *      +5% vida máxima (max 6 stacks = 30%)
+ * - Al terminar:
+ *      La vida máxima extra se mantiene 8s más
+ * - No se puede reactivar si ya está activa
  */
-[CreateAssetMenu(fileName = "XenoActive", menuName = "Classes/Actives/XenoActive")]
+[CreateAssetMenu(menuName = "Classes/Actives/XenoActive")]
 public class XenoActive : SOClassActive
 {
+    [Header("Base Effects")]
     public float duration = 10f;
-    public float missingHpPercent = 0.3f;
-    public float healOnBreakPercent = 0.25f;
-    public float bonusMaxHpPercent = 0.25f;
+    public float bonusMaxHpPercent = 0.30f;
+    public float healPerSecondPercent = 0.04f;
+    public float meleeRangeBonus = 0.50f;
+
+    [Header("On Hit Scaling")]
+    public float bonusMaxHpPerHit = 0.05f;
+    public int maxStacks = 6;
+
+    [Header("After Effect")]
+    public float postDuration = 8f;
+
+    private bool isRunning;
 
     public override void Activar(PlayerStats stats)
     {
-        // Se ejecuta inmediatamente, sin cooldown de tiempo
-        stats.StartCoroutine(ApplyActive(stats));
+        Debug.Log($"[XenoActive] Try activate | Focus:{stats.currentFocus}");
+
+        if (isRunning)
+        {
+            Debug.Log("[XenoActive] ❌ Ya está activa");
+            return;
+        }
+
+        if (!stats.ConsumeFocus(focusCost))
+        {
+            Debug.Log("[XenoActive] ❌ Focus insuficiente");
+            return;
+        }
+
+        stats.StartCoroutine(Run(stats));
     }
 
-    /*
-     * Rutina principal de la activa
-     */
-    private IEnumerator ApplyActive(PlayerStats stats)
+    private IEnumerator Run(PlayerStats stats)
     {
-        PlayerHealth health = stats.GetComponent<PlayerHealth>();
+        isRunning = true;
+        Debug.Log("[XenoActive] IMPERECEDERO START");
 
-        float missingHp = stats.maxHP.Current - stats.currentHp;
-        float shieldAmount = missingHp * missingHpPercent;
-        float hpBeforeShield = stats.currentHp;
+        float baseMaxHpBonus =
+            stats.maxHP.Base * bonusMaxHpPercent;
 
-        // Escudo como curación temporal
-        health.Heal(shieldAmount);
+        stats.maxHP.AddFlat(baseMaxHpBonus);
+        stats.caCRange.AddFlat(stats.caCRange.Base * meleeRangeBonus);
 
-        bool shieldBroken = false;
-        float timer = 0f;
+        float totalExtraHp = baseMaxHpBonus;
+        int stacks = 0;
 
-        while (timer < duration)
+        float previousHp = stats.currentHp;
+        float end = Time.time + duration;
+
+        while (Time.time < end)
         {
-            if (stats.currentHp < hpBeforeShield)
-            {
-                shieldBroken = true;
+            // Curación por segundo
+            float heal =
+                stats.maxHP.Current * healPerSecondPercent * Time.deltaTime;
 
-                float heal = stats.currentHp * healOnBreakPercent;
-                health.Heal(heal);
-                break;
+            stats.currentHp = Mathf.Min(
+                stats.currentHp + heal,
+                stats.maxHP.Current
+            );
+
+            // Detectar golpe recibido
+            if (stats.currentHp < previousHp && stacks < maxStacks)
+            {
+                stacks++;
+                float bonus =
+                    stats.maxHP.Base * bonusMaxHpPerHit;
+
+                stats.maxHP.AddFlat(bonus);
+                totalExtraHp += bonus;
+
+                Debug.Log($"[XenoActive] Hit stack {stacks}/{maxStacks} | +HP {bonus:F1}");
             }
 
-            timer += Time.deltaTime;
+            previousHp = stats.currentHp;
             yield return null;
         }
 
-        // Si el escudo aguanta
-        if (!shieldBroken)
-        {
-            float bonusMaxHp = stats.maxHP.Base * bonusMaxHpPercent;
+        // Quitamos buffs temporales visuales
+        stats.caCRange.AddFlat(
+            -(stats.caCRange.Base * meleeRangeBonus)
+        );
 
-            // Añadimos flat bonus a maxHP usando AddFlat
-            stats.maxHP.AddFlat(bonusMaxHp);
-            health.Heal(bonusMaxHp);
+        Debug.Log("[XenoActive] IMPERECEDERO END → Post duration");
 
-            yield return new WaitForSeconds(duration);
+        yield return new WaitForSeconds(postDuration);
 
-            stats.maxHP.AddFlat(-bonusMaxHp);
+        stats.maxHP.AddFlat(-totalExtraHp);
+        stats.currentHp = Mathf.Min(
+            stats.currentHp,
+            stats.maxHP.Current
+        );
 
-            // Ajustamos currentHp si supera el máximo
-            stats.currentHp = Mathf.Min(stats.currentHp, stats.maxHP.Current);
-        }
+        isRunning = false;
+        Debug.Log("[XenoActive] IMPERECEDERO FULL END");
     }
 }

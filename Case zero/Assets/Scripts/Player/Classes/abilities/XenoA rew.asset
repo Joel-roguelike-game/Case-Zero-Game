@@ -10,10 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 18a660ee984d95e499756a1db1297f51, type: 3}
-  m_Name: XenoActive
+  m_Name: XenoA rew
   m_EditorClassIdentifier: Assembly-CSharp::XenoActive
-  cooldown: 10
+  focusCost: 100
   duration: 10
-  missingHpPercent: 0.3
-  healOnBreakPercent: 0.25
-  bonusMaxHpPercent: 0.25
+  bonusMaxHpPercent: 0.3
+  healPerSecondPercent: 0.04
+  meleeRangeBonus: 0.5
+  bonusMaxHpPerHit: 0.05
+  maxStacks: 6
+  postDuration: 8
