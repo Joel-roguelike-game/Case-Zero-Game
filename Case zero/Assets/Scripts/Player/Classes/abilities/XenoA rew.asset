@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18a660ee984d95e499756a1db1297f51, type: 3}
   m_Name: XenoA rew
   m_EditorClassIdentifier: Assembly-CSharp::XenoActive
-  focusCost: 100
+  focusCost: 85
   duration: 10
   bonusMaxHpPercent: 0.3
   healPerSecondPercent: 0.04
