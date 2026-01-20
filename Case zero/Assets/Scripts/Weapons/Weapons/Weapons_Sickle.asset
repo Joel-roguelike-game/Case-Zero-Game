@@ -15,7 +15,7 @@ MonoBehaviour:
   weaponName: Hoz
   category: 0
   isEvolution: 0
-  damagePercent: 70
+  damagePercent: 105
   flatDamage: 6.5
   stabilityBreak: 13
   attackSpeed: 1.5

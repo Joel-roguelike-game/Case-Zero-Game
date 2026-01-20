@@ -24,7 +24,7 @@ MonoBehaviour:
   atkSpeedCaC: 1
   atkSpeedDist: 1
   actualAmmo: 1000
-  maxFocus: 100
+  maxFocus: 50
   focusRegen: 0
   parryMultiplier: 3
   stabilityMultiplier: 1.5
@@ -37,5 +37,5 @@ MonoBehaviour:
   level: 1
   xP: 0
   gold: 0
-  passive: {fileID: 11400000, guid: 1c5c87a819cddc94bad0ff4ae3fe9bcd, type: 2}
-  active: {fileID: 11400000, guid: 426fd9bc4ebc5044c9aa55ff5bbc206f, type: 2}
+  passive: {fileID: 11400000, guid: 288f6826f98248a49b72bb1de898a1cd, type: 2}
+  active: {fileID: 11400000, guid: 5eed879374551354ab0ecf59548d2643, type: 2}

@@ -112,7 +112,7 @@ public class WeaponHandler : MonoBehaviour
         if (slashCol != null)
             Physics2D.IgnoreCollision(playerCollider, slashCol);
 
-        Debug.Log("[WeaponHandler] Melee attack spawned");
+        //Debug.Log("[WeaponHandler] Melee attack spawned");
     }
 
     /*
@@ -177,6 +177,6 @@ public class WeaponHandler : MonoBehaviour
         p.direction = direction;
         p.owner = stats;
 
-        Debug.Log("[WeaponHandler] Projectile spawned");
+        //Debug.Log("[WeaponHandler] Projectile spawned");
     }
 }

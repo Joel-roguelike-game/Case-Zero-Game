@@ -206,9 +206,6 @@ public class PlayerStats : MonoBehaviour
         if (classActive == null)
             return;
 
-        if (!ConsumeFocus(classActive.focusCost))
-            return;
-
         classActive.Activar(this);
     }
 

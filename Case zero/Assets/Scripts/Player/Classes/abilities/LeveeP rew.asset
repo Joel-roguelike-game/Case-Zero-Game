@@ -21,4 +21,4 @@ MonoBehaviour:
   maxStacks: 5
   storedDamagePercent: 0.2
   cooldown: 5
-  leveeActive: {fileID: 11400000, guid: 426fd9bc4ebc5044c9aa55ff5bbc206f, type: 2}
+  leveeActive: {fileID: 11400000, guid: 5eed879374551354ab0ecf59548d2643, type: 2}

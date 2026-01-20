@@ -138,7 +138,7 @@ public class PlayerMovement : MonoBehaviour
         canDash = false;
         isDashing = true;
         
-        GetComponent<PlayerHealth>().StartDashInvulnerability(0.3f);
+        GetComponent<PlayerHealth>().StartDashInvulnerability(0.4f);
 
         float elapsed = 0f;
 
@@ -185,7 +185,7 @@ public class PlayerMovement : MonoBehaviour
         // Aplicamos ralentización temporal
         stats.moveSpeed.AddMultiplier(0.2f);
 
-        GetComponent<PlayerHealth>().StartParryInvulnerability(0.15f);
+        GetComponent<PlayerHealth>().StartParryInvulnerability(0.25f);
 
         yield return new WaitForSeconds(0.15f);
 

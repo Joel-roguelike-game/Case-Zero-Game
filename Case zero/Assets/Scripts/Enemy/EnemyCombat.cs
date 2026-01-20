@@ -74,8 +74,17 @@ public class EnemyCombat : MonoBehaviour
         float damageMultiplier = GetDamageTakenMultiplier();
         float finalDamage = ctx.damage * damageMultiplier;
 
-        health.TakeDamage(ctx);
+        // 🔧 Clonamos el contexto para no modificar el original
+        DamageContext finalCtx = ctx;
+        finalCtx.damage = finalDamage;
+
+        health.TakeDamage(finalCtx);
         SpawnDamageText(finalDamage, ctx.isCrit);
+
+        Debug.Log(
+            $"[EnemyCombat] Damage received: {ctx.damage} → {finalDamage} " +
+            $"(x{damageMultiplier:F2})"
+        );
     }
 
 

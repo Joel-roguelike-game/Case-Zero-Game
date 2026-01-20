@@ -15,10 +15,10 @@ MonoBehaviour:
   weaponName: Daga
   category: 0
   isEvolution: 0
-  damagePercent: 25
+  damagePercent: 60
   flatDamage: 2.5
   stabilityBreak: 5
-  attackSpeed: 3.5
+  attackSpeed: 2.5
   maxAmmo: 0
   weaponPrefab: {fileID: 8649060943599828770, guid: e9869f12ed74d47429efbee761d66288, type: 3}
   evolveOptionA: {fileID: 0}

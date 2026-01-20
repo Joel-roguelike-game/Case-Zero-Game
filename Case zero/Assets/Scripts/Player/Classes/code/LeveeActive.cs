@@ -6,13 +6,25 @@ using System.Collections.Generic;
 [CreateAssetMenu(menuName = "Classes/Actives/LeveeActive")]
 public class LeveeActive : SOClassActive
 {
+    [Header("Active Settings")]
     public float duration = 8f;
+
+    [Tooltip("20% base damage taken")]
     public float baseDamageBonus = 0.20f;
+
+    [Tooltip("Extra % based on current move speed (relative)")]
     public float moveSpeedScaling = 0.20f;
+
+    [Header("Kill Reward")]
     public float focusOnKill = 25f;
+    public float critChanceOnKill = 20f;
+    public float critBuffDuration = 10f;
 
     private readonly HashSet<PlayerStats> activePlayers = new();
     private EnemyCombat target;
+
+    // 🔹 Control del buff de crítico para que no se acumule
+    private readonly Dictionary<PlayerStats, Coroutine> critBuffRoutines = new();
 
     public bool IsRunning(PlayerStats stats)
         => activePlayers.Contains(stats);
@@ -21,9 +33,10 @@ public class LeveeActive : SOClassActive
     {
         Debug.Log($"[LeveeActive] Try activate | Focus:{stats.currentFocus}");
 
-        if (!stats.ConsumeFocus(focusCost))
+        // ❌ Cooldown interno: ya hay un enemigo marcado
+        if (activePlayers.Count > 0)
         {
-            Debug.Log("[LeveeActive] ❌ Focus insuficiente");
+            Debug.Log("[LeveeActive] ❌ Ya hay un objetivo marcado");
             return;
         }
 
@@ -31,6 +44,12 @@ public class LeveeActive : SOClassActive
         if (!target)
         {
             Debug.Log("[LeveeActive] ❌ Sin objetivo");
+            return;
+        }
+
+        if (!stats.ConsumeFocus(focusCost))
+        {
+            Debug.Log("[LeveeActive] ❌ Focus insuficiente");
             return;
         }
 
@@ -42,13 +61,10 @@ public class LeveeActive : SOClassActive
         activePlayers.Add(stats);
         Debug.Log("[LeveeActive] ACTIVA RUNNING");
 
-        float bonus =
-            baseDamageBonus +
-            (stats.moveSpeed.Current * moveSpeedScaling);
+        float currentBonus = CalculateBonus(stats);
+        target.AddDamageTakenModifier(this, currentBonus);
 
-        Debug.Log($"[LeveeActive] Vulnerability +{bonus * 100:F1}%");
-
-        target.AddDamageTakenModifier(this, bonus);
+        Debug.Log($"[LeveeActive] Vulnerability +{currentBonus * 100f:F1}%");
 
         float end = Time.time + duration;
         bool killed = false;
@@ -60,6 +76,10 @@ public class LeveeActive : SOClassActive
                 killed = true;
                 break;
             }
+
+            // 🔁 Recalcular vulnerabilidad si cambia la MS
+            float newBonus = CalculateBonus(stats);
+            target.AddDamageTakenModifier(this, newBonus);
 
             yield return null;
         }
@@ -78,7 +98,56 @@ public class LeveeActive : SOClassActive
             );
 
             Debug.Log($"[LeveeActive] Kill bonus → +{focusOnKill} Focus");
+
+            // ✅ Aplicar / refrescar buff de crítico
+            ApplyCritBuff(stats);
         }
+    }
+
+    private float CalculateBonus(PlayerStats stats)
+    {
+        float baseMS = stats.moveSpeed.Base;
+        float currentMS = stats.moveSpeed.Current;
+
+        float relativeSpeed =
+            baseMS > 0f ? (currentMS / baseMS) - 1f : 0f;
+
+        float bonus =
+            baseDamageBonus +
+            (relativeSpeed * moveSpeedScaling);
+
+        return Mathf.Max(0f, bonus);
+    }
+
+    // 🔹 Buff de crítico NO acumulable, refrescable
+    private void ApplyCritBuff(PlayerStats stats)
+    {
+        // Si ya había un buff activo → eliminarlo
+        if (critBuffRoutines.TryGetValue(stats, out Coroutine routine))
+        {
+            stats.StopCoroutine(routine);
+            stats.critChance.AddFlat(-critChanceOnKill);
+            critBuffRoutines.Remove(stats);
+
+            Debug.Log("[LeveeActive] Crit buff refrescado");
+        }
+
+        Coroutine newRoutine = stats.StartCoroutine(CritBuff(stats));
+        critBuffRoutines[stats] = newRoutine;
+    }
+
+    private IEnumerator CritBuff(PlayerStats stats)
+    {
+        Debug.Log($"[LeveeActive] +{critChanceOnKill}% crit for {critBuffDuration}s");
+
+        stats.critChance.AddFlat(critChanceOnKill);
+
+        yield return new WaitForSeconds(critBuffDuration);
+
+        stats.critChance.AddFlat(-critChanceOnKill);
+        critBuffRoutines.Remove(stats);
+
+        Debug.Log("[LeveeActive] Crit buff ended");
     }
 
     private EnemyCombat FindEnemyUnderCursor()
