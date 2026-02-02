@@ -17,7 +17,7 @@ MonoBehaviour:
   maxHP: 80
   maxStamina: 75
   caCDmg: 13
-  distDmg: 11
+  distDmg: 111
   critChance: 10
   critDamage: 150
   moveSpeed: 12
@@ -29,7 +29,7 @@ MonoBehaviour:
   parryMultiplier: 3
   stabilityMultiplier: 1.5
   dodgeSpeed: 1
-  staminaRegen: 0
+  staminaRegen: 1
   hpRegen: 0
   lifestealPercent: 0
   lifestealFlat: 0
@@ -37,5 +37,5 @@ MonoBehaviour:
   level: 1
   xP: 0
   gold: 0
-  passive: {fileID: 0}
-  active: {fileID: 0}
+  passive: {fileID: 11400000, guid: 026fad43fdf5fc24db6746ad91449047, type: 2}
+  active: {fileID: 11400000, guid: 33a261cf6dd59ca4db4edd7f276bbb4b, type: 2}

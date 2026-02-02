@@ -6,6 +6,7 @@ TagManager:
   tags:
   - MapBoundary
   - Enemy
+  - EchoMelee
   layers:
   - Default
   - TransparentFX

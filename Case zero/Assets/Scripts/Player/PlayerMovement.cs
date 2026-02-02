@@ -126,6 +126,7 @@ public class PlayerMovement : MonoBehaviour
             return;
 
         //Debug.Log("DODGED!");
+        CombatEvents.OnDash?.Invoke(stats);
         dashDirection = input.MoveInput.normalized;
         StartCoroutine(DashRoutine());
     }

@@ -1,20 +1,17 @@
+// MeleeSlash.cs
 using UnityEngine;
 
-/*
- * Ataque cuerpo a cuerpo del jugador
- */
 public class MeleeSlash : MonoBehaviour
 {
     public PlayerStats owner;
-
     public float stabilityBreak;
     public float stabilityMultiplier;
-
     public Vector2 direction;
 
-    public float duration = 0.15f;
+    public float duration = 1f;
     private float timer;
     private bool hasHit;
+    
 
     private void Start()
     {
@@ -27,21 +24,21 @@ public class MeleeSlash : MonoBehaviour
 
         Collider2D playerCol = owner.GetComponent<Collider2D>();
         Collider2D slashCol = GetComponent<Collider2D>();
-
         if (playerCol && slashCol)
         {
-            Vector2 edge = playerCol.bounds.ClosestPoint(
-                playerCol.bounds.center + (Vector3)direction * 10f
-            );
-
-            float extent = Mathf.Max(
-                slashCol.bounds.extents.x,
-                slashCol.bounds.extents.y
-            );
-
+            Vector2 edge = playerCol.bounds.ClosestPoint(playerCol.bounds.center + (Vector3)direction * 10f);
+            float extent = Mathf.Max(slashCol.bounds.extents.x, slashCol.bounds.extents.y);
             transform.position = edge + direction * extent;
         }
+
+        // ⚠️ Solo disparar el evento si es un ataque de jugador
+        if (owner != null && !this.CompareTag("EchoMelee"))
+        {
+            AttackContext ctx = new AttackContext(direction, AttackType.Melee, owner, AttackSource.Player);
+            CombatEvents.OnPlayerAttack?.Invoke(owner, ctx);
+        }
     }
+
 
     private void Update()
     {
@@ -75,17 +72,7 @@ public class MeleeSlash : MonoBehaviour
             null
         );
 
-        Debug.Log(
-            $"[MeleeSlash] HIT → dmg:{ctx.damage} crit:{ctx.isCrit}"
-        );
-
-        enemy.ReceiveHit(
-            ctx,
-            stabilityBreak,
-            owner.stabilityMultiplier.Current
-        );
-
-        owner.GetComponent<PlayerHealth>()
-            ?.TryApplyLifesteal();
+        enemy.ReceiveHit(ctx, stabilityBreak, owner.stabilityMultiplier.Current);
+        owner.GetComponent<PlayerHealth>()?.TryApplyLifesteal();
     }
 }

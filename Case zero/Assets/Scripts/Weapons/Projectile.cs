@@ -1,8 +1,6 @@
+// Projectile.cs
 using UnityEngine;
 
-/*
- * Proyectil del jugador
- */
 public class Projectile : MonoBehaviour
 {
     public float speed = 100f;
@@ -10,14 +8,24 @@ public class Projectile : MonoBehaviour
     public float lifeTime = 3f;
 
     public PlayerStats owner;
+    public bool isEchoProjectile = false;
 
     private float timer;
     private bool hasHit;
 
+    private void Start()
+    {
+        // Solo el jugador dispara evento
+        if (!isEchoProjectile && owner != null)
+        {
+            AttackContext ctx = new AttackContext(direction, AttackType.Ranged, owner, AttackSource.Player);
+            CombatEvents.OnPlayerAttack?.Invoke(owner, ctx);
+        }
+    }
+
     private void Update()
     {
         transform.position += (Vector3)direction * speed * Time.deltaTime;
-
         timer += Time.deltaTime;
         if (timer >= lifeTime)
             Destroy(gameObject);
@@ -28,8 +36,7 @@ public class Projectile : MonoBehaviour
         if (hasHit) return;
 
         EnemyCombat enemy = other.GetComponentInParent<EnemyCombat>();
-        if (!enemy || enemy.health.isDead)
-            return;
+        if (!enemy || enemy.health.isDead) return;
 
         hasHit = true;
 
@@ -49,9 +56,8 @@ public class Projectile : MonoBehaviour
             null
         );
 
-        Debug.Log(
-            $"[Projectile] HIT → dmg:{ctx.damage} crit:{ctx.isCrit}"
-        );
+        if (isEchoProjectile)
+            ctx.damage *= 1.25f;
 
         enemy.ReceiveHit(
             ctx,
@@ -59,9 +65,8 @@ public class Projectile : MonoBehaviour
             owner.stabilityMultiplier.Current
         );
 
-        owner.GetComponent<PlayerHealth>()
-            ?.TryApplyLifesteal();
-
+        owner.GetComponent<PlayerHealth>()?.TryApplyLifesteal();
         Destroy(gameObject);
     }
+
 }
