@@ -32,11 +32,11 @@ public class MeleeSlash : MonoBehaviour
         }
 
         // ⚠️ Solo disparar el evento si es un ataque de jugador
-        if (owner != null && !this.CompareTag("EchoMelee"))
+        /*if (owner != null && !this.CompareTag("EchoMelee"))
         {
             AttackContext ctx = new AttackContext(direction, AttackType.Melee, owner, AttackSource.Player);
             CombatEvents.OnPlayerAttack?.Invoke(owner, ctx);
-        }
+        }*/
     }
 
 

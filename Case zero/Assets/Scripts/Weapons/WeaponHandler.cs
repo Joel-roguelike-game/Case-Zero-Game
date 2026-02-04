@@ -90,6 +90,14 @@ public class WeaponHandler : MonoBehaviour
     private void UseMelee()
     {
         Vector2 dir = GetMouseDirection();
+        AttackContext ctx = new AttackContext(
+            dir,
+            AttackType.Melee,
+            stats,
+            AttackSource.Player
+        );
+        CombatEvents.OnPlayerAttack?.Invoke(stats, ctx);
+        
         float radius =
             playerCollider.bounds.extents.magnitude * stats.caCRange.Current;
 

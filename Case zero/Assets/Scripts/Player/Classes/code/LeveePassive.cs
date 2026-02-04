@@ -23,7 +23,6 @@ public class LeveePassive : SOClassPassive
     private class State
     {
         public float windowEnd;
-        public float cooldownEnd;
         public float storedCritDamage;
         public int stacks;
         public bool healUsed;
@@ -57,41 +56,32 @@ public class LeveePassive : SOClassPassive
         if (!ctx.isCrit)
             return;
 
-        //Debug.Log($"[LeveePassive] CRIT HIT → {ctx.damage}");
-
         if (!states.TryGetValue(stats, out State s))
             states[stats] = s = new State();
 
-        if (Time.time < s.cooldownEnd)
-        {
-            //Debug.Log("[LeveePassive] En cooldown");
+        // 🔹 Cooldown interno en PlayerStats
+        if (!stats.IsPassiveReady(this))
             return;
-        }
 
         bool activeRefresh = leveeActive && leveeActive.IsRunning(stats);
 
-        // ─────────────────────────────
-        // GESTIÓN DE LA VENTANA
-        // ─────────────────────────────
-
-        // Si la ventana ha terminado → empezar una nueva
+        // ───────────────
+        // Ventana de 2s
+        // ───────────────
         if (Time.time > s.windowEnd)
         {
-            //Debug.Log("[LeveePassive] Nueva ventana");
             Reset(stats, s);
             s.windowEnd = Time.time + windowDuration;
         }
-        // Si la activa está corriendo → refrescar ventana
         else if (activeRefresh)
         {
-            Debug.Log("[LeveePassive] Ventana refrescada por activa");
+            // Refresca ventana si la activa está corriendo
             s.windowEnd = Time.time + windowDuration;
         }
 
-        // ─────────────────────────────
-        // ACUMULACIÓN DE DAÑO
-        // ─────────────────────────────
-
+        // ───────────────
+        // Acumulación de daño y MS
+        // ───────────────
         s.storedCritDamage += ctx.damage;
 
         if (!s.healUsed)
@@ -99,25 +89,18 @@ public class LeveePassive : SOClassPassive
             float heal = stats.maxHP.Current * healPercent;
             stats.currentHp = Mathf.Min(stats.currentHp + heal, stats.maxHP.Current);
             s.healUsed = true;
-
-            //Debug.Log($"[LeveePassive] Heal {heal}");
         }
 
         s.stacks = Mathf.Min(s.stacks + 1, maxStacks);
 
-        float percent =
-            baseMoveSpeedPercent +
-            (s.stacks - 1) * extraMoveSpeedPerStack;
-
+        float percent = baseMoveSpeedPercent + (s.stacks - 1) * extraMoveSpeedPerStack;
         float flat = stats.moveSpeed.Current * percent;
 
-        // Aplica MS: quita el flat anterior y aplica el nuevo
         stats.moveSpeed.AddFlat(-s.moveSpeedFlat);
         stats.moveSpeed.AddFlat(flat);
         s.moveSpeedFlat = flat;
 
-        //Debug.Log($"[LeveePassive] MS stacks:{s.stacks} flat:{flat}");
-
+        // Reinicia coroutine de fin de ventana
         if (s.routine != null)
             stats.StopCoroutine(s.routine);
 
@@ -128,15 +111,14 @@ public class LeveePassive : SOClassPassive
     {
         yield return new WaitUntil(() => Time.time >= s.windowEnd);
 
-        // SOLO quitar la velocidad aplicada
+        // Quitar velocidad aplicada
         stats.moveSpeed.AddFlat(-s.moveSpeedFlat);
 
+        // Daño adicional equivalente al 20% del daño crítico acumulado
         float aoe = s.storedCritDamage * storedDamagePercent;
         Debug.Log($"[LeveePassive] AOE → {aoe}");
 
-        EnemyCombat[] enemies =
-            Object.FindObjectsByType<EnemyCombat>(FindObjectsSortMode.None);
-
+        EnemyCombat[] enemies = Object.FindObjectsByType<EnemyCombat>(FindObjectsSortMode.None);
         foreach (EnemyCombat e in enemies)
         {
             if (!e || e.health.isDead)
@@ -152,18 +134,17 @@ public class LeveePassive : SOClassPassive
             e.ReceiveHit(ctx, 0f, 1f);
         }
 
-        s.cooldownEnd = Time.time + cooldown;
+        // 🔹 Activar cooldown interno de 5s
+        stats.SetPassiveCooldown(this, cooldown);
 
-        // Limpiar datos sin afectar MS
+        // Limpiar datos de la ventana
         s.moveSpeedFlat = 0f;
         s.storedCritDamage = 0f;
         s.stacks = 0;
         s.healUsed = false;
-
-        //Debug.Log($"[LeveePassive] Ventana finalizada, cooldown hasta {s.cooldownEnd}");
+        s.routine = null;
     }
 
-    // Reset solo limpia los datos, NO toca la velocidad
     private void Reset(PlayerStats stats, State s)
     {
         s.moveSpeedFlat = 0f;

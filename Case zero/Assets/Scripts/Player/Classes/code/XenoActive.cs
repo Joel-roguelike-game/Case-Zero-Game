@@ -37,11 +37,13 @@ public class XenoActive : SOClassActive
     {
         Debug.Log($"[XenoActive] Try activate | Focus:{stats.currentFocus}");
 
-        if (isRunning)
+        if (!stats.IsActiveReady(this))
         {
-            Debug.Log("[XenoActive] ❌ Ya está activa");
+            Debug.Log("[XenoActive] ❌ En cooldown interno");
             return;
         }
+
+        stats.SetActiveCooldown(this, duration + postDuration);
 
         if (!stats.ConsumeFocus(focusCost))
         {

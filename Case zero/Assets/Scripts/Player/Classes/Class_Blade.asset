@@ -17,7 +17,7 @@ MonoBehaviour:
   maxHP: 80
   maxStamina: 75
   caCDmg: 13
-  distDmg: 111
+  distDmg: 11
   critChance: 10
   critDamage: 150
   moveSpeed: 12

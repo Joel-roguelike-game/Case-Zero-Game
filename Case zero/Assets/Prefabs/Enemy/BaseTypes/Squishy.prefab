@@ -183,7 +183,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyCombat
   health: {fileID: 0}
   stabilityRegenDelay: 5
-  damageMultiplier: 1
   contactDamageCooldown: 1
 --- !u!114 &5749572492694480550
 MonoBehaviour:

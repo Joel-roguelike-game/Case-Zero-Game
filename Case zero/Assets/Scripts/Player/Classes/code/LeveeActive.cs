@@ -33,12 +33,12 @@ public class LeveeActive : SOClassActive
     {
         Debug.Log($"[LeveeActive] Try activate | Focus:{stats.currentFocus}");
 
-        // ❌ Cooldown interno: ya hay un enemigo marcado
-        if (activePlayers.Count > 0)
+        if (!stats.IsActiveReady(this))
         {
-            Debug.Log("[LeveeActive] ❌ Ya hay un objetivo marcado");
+            Debug.Log("[LeveeActive] ❌ En cooldown interno");
             return;
         }
+
 
         target = FindEnemyUnderCursor();
         if (!target)
@@ -52,7 +52,8 @@ public class LeveeActive : SOClassActive
             Debug.Log("[LeveeActive] ❌ Focus insuficiente");
             return;
         }
-
+        
+        stats.SetActiveCooldown(this, duration); // similar a BladeActive
         stats.StartCoroutine(Run(stats));
     }
 

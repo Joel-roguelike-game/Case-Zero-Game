@@ -16,17 +16,13 @@ public class BladeActive : SOClassActive
     public float moveSpeedDuration = 1f;
     public float internalCooldown = 1f;
 
-    // ⛔ NUNCA bools de runtime en SO
-    private float nextReadyTime = 0f;
-
     public override void Activar(PlayerStats stats)
     {
         Debug.Log($"[BladeActive] Try activate | Focus:{stats.currentFocus}");
 
-        if (Time.time < nextReadyTime)
+        if (!stats.IsActiveReady(this))
         {
-            Debug.Log("[BladeActive] ❌ En cooldown interno: "+Time.time +"/"+ nextReadyTime);
-            
+            Debug.Log("[BladeActive] ❌ En cooldown interno");
             return;
         }
 
@@ -61,8 +57,8 @@ public class BladeActive : SOClassActive
     )
     {
         //  bloqueamos inmediatamente
-        nextReadyTime = Time.time + moveSpeedDuration + internalCooldown;
-
+        float totalCooldown =  moveSpeedDuration + internalCooldown;
+        stats.SetActiveCooldown(this, totalCooldown);
         Debug.Log("[BladeActive] TELEPORT");
 
         stats.transform.position = echo.transform.position;
