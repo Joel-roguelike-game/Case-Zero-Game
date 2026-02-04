@@ -4,26 +4,38 @@ using UnityEngine;
 /*
  * XenoPassive
  *
- * Pasiva: Flujo de fuerza
- * - Aumenta el daño CaC y a distancia en:
- *   • 1% de la vida máxima actual
- *   • +2% de la vida que falte hasta la vida máxima
- * - Se recalcula constantemente para reflejar cambios en HP
+ * Pasiva: El Fortalecido
+ * - El daño CaC y Dist escala con la vida máxima
+ * - El porcentaje depende del % de vida actual
+ *   100–66% → 10%
+ *   66–33%  → 12.5%
+ *   33–1%   → 15%
+ * - Se recalcula dinámicamente
  */
 [CreateAssetMenu(menuName = "Classes/Passives/XenoPassive")]
 public class XenoPassive : SOClassPassive
 {
-    public float maxHpPercentBonus = 0.01f;        // 1% vida máxima
-    public float missingHpPercentBonus = 0.02f;    // 2% vida faltante
+    [Header("Scaling Percentages")]
+    public float highHpPercent = 0.10f;
+    public float midHpPercent = 0.125f;
+    public float lowHpPercent = 0.15f;
+
+    private Coroutine routine;
+    private int lastTier = -1;
 
     public override void Activate(PlayerStats stats)
     {
-        stats.StartCoroutine(UpdateBonus(stats));
+        Debug.Log("[XenoPassive] ACTIVADA");
+        routine = stats.StartCoroutine(UpdateBonus(stats));
     }
 
     public override void Deactivate(PlayerStats stats)
     {
-        // Eliminamos solo el bonus de Xeno
+        Debug.Log("[XenoPassive] DESACTIVADA");
+
+        if (routine != null)
+            stats.StopCoroutine(routine);
+
         stats.caCDmg.FlatBonus = 0f;
         stats.distDmg.FlatBonus = 0f;
 
@@ -31,30 +43,49 @@ public class XenoPassive : SOClassPassive
         stats.distDmg.Recalculate();
     }
 
-    /*
-     * Recalcula cada frame el bonus de daño de Xeno
-     * sin pisar el daño base ni otros modificadores
-     */
     private IEnumerator UpdateBonus(PlayerStats stats)
     {
         while (true)
         {
-            float bonusFromMaxHp =
-                stats.maxHP.Current * maxHpPercentBonus;
+            float hpPercent =
+                stats.currentHp / stats.maxHP.Current;
 
-            float bonusFromMissingHp =
-                (stats.maxHP.Current - stats.currentHp) * missingHpPercentBonus;
+            float scale;
+            int tier;
 
-            float totalBonus = bonusFromMaxHp + bonusFromMissingHp;
+            if (hpPercent > 0.66f)
+            {
+                scale = highHpPercent;
+                tier = 0;
+            }
+            else if (hpPercent > 0.33f)
+            {
+                scale = midHpPercent;
+                tier = 1;
+            }
+            else
+            {
+                scale = lowHpPercent;
+                tier = 2;
+            }
 
-            stats.caCDmg.FlatBonus = totalBonus;
-            stats.distDmg.FlatBonus = totalBonus;
+            float bonus = stats.maxHP.Current * scale;
+
+            stats.caCDmg.FlatBonus = bonus;
+            stats.distDmg.FlatBonus = bonus;
 
             stats.caCDmg.Recalculate();
             stats.distDmg.Recalculate();
 
+            if (tier != lastTier)
+            {
+                Debug.Log(
+                    $"[XenoPassive] Tier {tier} | HP% {(hpPercent * 100f):F1}% | Bonus {bonus:F1}"
+                );
+                lastTier = tier;
+            }
+
             yield return null;
         }
     }
-
 }

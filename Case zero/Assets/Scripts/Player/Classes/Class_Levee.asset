@@ -18,13 +18,13 @@ MonoBehaviour:
   maxStamina: 50
   caCDmg: 10
   distDmg: 10
-  critChance: 20
-  critDamage: 200
+  critChance: 10
+  critDamage: 150
   moveSpeed: 10
   atkSpeedCaC: 1
   atkSpeedDist: 1
   actualAmmo: 1000
-  maxFocus: 100
+  maxFocus: 50
   focusRegen: 0
   parryMultiplier: 3
   stabilityMultiplier: 1.5
@@ -37,5 +37,5 @@ MonoBehaviour:
   level: 1
   xP: 0
   gold: 0
-  passive: {fileID: 11400000, guid: 6f347a9f28cd079439d243ee3218ad47, type: 2}
-  active: {fileID: 11400000, guid: 8544e8cdb39b67d4b9abc468d680c1f4, type: 2}
+  passive: {fileID: 11400000, guid: 288f6826f98248a49b72bb1de898a1cd, type: 2}
+  active: {fileID: 11400000, guid: 5eed879374551354ab0ecf59548d2643, type: 2}

@@ -15,9 +15,9 @@ MonoBehaviour:
   weaponName: Maza
   category: 0
   isEvolution: 0
-  damagePercent: 140
+  damagePercent: 210
   flatDamage: 13
-  stabilityBreak: 26
+  stabilityBreak: 32
   attackSpeed: 0.75
   maxAmmo: 0
   weaponPrefab: {fileID: 8649060943599828770, guid: e9869f12ed74d47429efbee761d66288, type: 3}

@@ -15,8 +15,9 @@ MonoBehaviour:
   weaponName: Espada
   category: 0
   isEvolution: 0
-  damagePercent: 50
+  damagePercent: 75
   flatDamage: 5
+  stabilityBreak: 10
   attackSpeed: 2
   maxAmmo: 0
   weaponPrefab: {fileID: 8649060943599828770, guid: e9869f12ed74d47429efbee761d66288, type: 3}

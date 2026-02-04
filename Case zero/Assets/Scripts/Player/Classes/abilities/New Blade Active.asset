@@ -9,11 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 18a660ee984d95e499756a1db1297f51, type: 3}
-  m_Name: XenoActive
-  m_EditorClassIdentifier: Assembly-CSharp::XenoActive
-  cooldown: 10
-  duration: 10
-  missingHpPercent: 0.3
-  healOnBreakPercent: 0.25
-  bonusMaxHpPercent: 0.25
+  m_Script: {fileID: 11500000, guid: 3d7aab661a60ae64894bb0ad25df74bb, type: 3}
+  m_Name: New Blade Active
+  m_EditorClassIdentifier: Assembly-CSharp::BladeActive
+  focusCost: 20
+  moveSpeedBonus: 0.3
+  moveSpeedDuration: 1
+  internalCooldown: 1

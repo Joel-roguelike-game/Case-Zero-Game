@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 /*
@@ -11,6 +12,12 @@ using UnityEngine;
 [RequireComponent(typeof(Collider2D))]
 public class PlayerStats : MonoBehaviour
 {
+    
+    private Dictionary<SOClassActive, float> activeCooldowns
+        = new Dictionary<SOClassActive, float>();
+    private Dictionary<SOClassPassive, float> passiveCooldowns
+        = new Dictionary<SOClassPassive, float>();
+    
     [Header("Clase (ScriptableObject base)")]
     public SOPlayerClass pClass;
 
@@ -126,7 +133,9 @@ public class PlayerStats : MonoBehaviour
         // Guardamos los valores BASE reales de daño
         baseCaCDmgRuntime = caCDmg.Base;
         baseDistDmgRuntime = distDmg.Base;
-
+        
+        lastActiveTime = -999f;
+        
         classPassive = data.passive;
         classActive = data.active;
 
@@ -206,10 +215,33 @@ public class PlayerStats : MonoBehaviour
         if (classActive == null)
             return;
 
-        if (!ConsumeFocus(classActive.focusCost))
-            return;
-
         classActive.Activar(this);
+    }
+
+    public bool IsActiveReady(SOClassActive active)
+    {
+        if (!activeCooldowns.TryGetValue(active, out float readyTime))
+            return true;
+
+        return Time.time >= readyTime;
+    }
+
+    public void SetActiveCooldown(SOClassActive active, float duration)
+    {
+        activeCooldowns[active] = Time.time + duration;
+    }
+    
+    public bool IsPassiveReady(SOClassPassive passive)
+    {
+        if (!passiveCooldowns.TryGetValue(passive, out float readyTime))
+            return true;
+
+        return Time.time >= readyTime;
+    }
+
+    public void SetPassiveCooldown(SOClassPassive passive, float duration)
+    {
+        passiveCooldowns[passive] = Time.time + duration;
     }
 
 }

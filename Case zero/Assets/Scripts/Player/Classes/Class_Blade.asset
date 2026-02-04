@@ -10,21 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 26d01a31a3ca83947a31e05ac90df193, type: 3}
-  m_Name: Class_Xeno
+  m_Name: Class_Blade
   m_EditorClassIdentifier: Assembly-CSharp::SOPlayerClass
-  weaponMelee: {fileID: 11400000, guid: df75735747e3fc44baf93de6102a640a, type: 2}
-  weaponRanged: {fileID: 11400000, guid: 56d4d6bbb49fcd44599fe5310565c847, type: 2}
-  maxHP: 150
-  maxStamina: 50
-  caCDmg: 5
-  distDmg: 5
+  weaponMelee: {fileID: 11400000, guid: cc9011355fa34ce4ca81c88ebc72c22d, type: 2}
+  weaponRanged: {fileID: 11400000, guid: e32a3d08d8f32e44f98e1253684ea82c, type: 2}
+  maxHP: 80
+  maxStamina: 75
+  caCDmg: 13
+  distDmg: 11
   critChance: 10
   critDamage: 150
-  moveSpeed: 8
-  atkSpeedCaC: 1
-  atkSpeedDist: 1
-  actualAmmo: 1000
-  maxFocus: 85
+  moveSpeed: 12
+  atkSpeedCaC: 1.1
+  atkSpeedDist: 1.05
+  actualAmmo: 250
+  maxFocus: 40
   focusRegen: 0
   parryMultiplier: 3
   stabilityMultiplier: 1.5
@@ -37,5 +37,5 @@ MonoBehaviour:
   level: 1
   xP: 0
   gold: 0
-  passive: {fileID: 11400000, guid: ee8c47410362be34e95520a23ca94c17, type: 2}
-  active: {fileID: 11400000, guid: 7460ab9dfd537f04b94cf1bd73c662f9, type: 2}
+  passive: {fileID: 11400000, guid: 026fad43fdf5fc24db6746ad91449047, type: 2}
+  active: {fileID: 11400000, guid: 33a261cf6dd59ca4db4edd7f276bbb4b, type: 2}

@@ -16,6 +16,9 @@ public class SlowMotionController : MonoBehaviour
     public float slowScale = 0.33f;
     public float duration = 0.5f;
 
+    private float previousTimeScale;
+    private float previousFixedDelta;
+    
     private Coroutine slowRoutine;
 
     /*
@@ -54,13 +57,17 @@ public class SlowMotionController : MonoBehaviour
     {
         Debug.Log("SLOW MOTION ACTIVADO");
 
+        previousTimeScale = Time.timeScale;
+        previousFixedDelta = Time.fixedDeltaTime;
+
         Time.timeScale = slowScale;
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
 
         yield return new WaitForSecondsRealtime(duration);
 
-        Time.timeScale = 1f;
-        Time.fixedDeltaTime = 0.02f;
+        Time.timeScale = previousTimeScale;
+        Time.fixedDeltaTime = previousFixedDelta;
+
 
         Debug.Log("SLOW MOTION DESACTIVADO");
     }

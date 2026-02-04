@@ -15,7 +15,7 @@ MonoBehaviour:
   weaponName: Lanza
   category: 0
   isEvolution: 0
-  damagePercent: 85
+  damagePercent: 127.5
   flatDamage: 7.5
   stabilityBreak: 15
   attackSpeed: 1.25

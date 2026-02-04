@@ -30,18 +30,16 @@ public class EnemyHealth : MonoBehaviour
     /*
      * Aplica daño al enemigo y gestiona la muerte.
      */
-    public void TakeDamage(float amount)
+    public void TakeDamage(DamageContext ctx)
     {
-        // Evita recibir daño después de muerto
         if (isDead) return;
 
-        stats.currentHealth -= amount;
+        stats.currentHealth -= ctx.damage;
 
         if (stats.currentHealth <= 0f)
-        {
             HandleDeath();
-        }
     }
+
 
     /*
      * Maneja la muerte del enemigo.
