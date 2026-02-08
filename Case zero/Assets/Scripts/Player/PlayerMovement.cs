@@ -26,6 +26,10 @@ public class PlayerMovement : MonoBehaviour
     public float dashMultiplier = 3f;
     public float dashDuration = 0.15f;
     public float dashCooldown = 1f;
+    [Header("Parry Settings")]
+    [SerializeField] public float parryCooldown = 2.85f;
+    [SerializeField] public float parryStaminaCost = 30f;
+    
 
     private Vector2 minBounds;
     private Vector2 maxBounds;
@@ -36,7 +40,7 @@ public class PlayerMovement : MonoBehaviour
     private WeaponHandler weaponHandler;
 
     public bool isParrying;
-    private bool canParry = true;
+    public bool canParry = true;
 
     /*
      * Obtiene todas las referencias necesarias.
@@ -167,9 +171,10 @@ public class PlayerMovement : MonoBehaviour
         if (!canParry || isDashing || isParrying)
             return;
 
-        if (!stats.ConsumeStamina(30f))
+        if (!stats.ConsumeStamina(parryStaminaCost))
             return;
-
+        
+        CombatEvents.OnParry?.Invoke(stats);
         StartCoroutine(ParryRoutine());
     }
 
@@ -183,22 +188,22 @@ public class PlayerMovement : MonoBehaviour
         canParry = false;
         isParrying = true;
 
-        // Aplicamos ralentización temporal
-        stats.moveSpeed.AddMultiplier(0.2f);
-
+        // === SLOW DEL 80% (queda al 20%) ===
+        stats.moveSpeed.AddPercent(-0.8f);
+        stats.moveSpeed.Recalculate();
         GetComponent<PlayerHealth>().StartParryInvulnerability(0.25f);
 
         yield return new WaitForSeconds(0.15f);
 
-        // Restauramos velocidad
-        stats.moveSpeed.Multiplier = 1f;
+        // === QUITAMOS SOLO EL SLOW DEL PARRY ===
+        stats.moveSpeed.AddPercent(+0.8f);
         stats.moveSpeed.Recalculate();
-
         isParrying = false;
 
-        yield return new WaitForSeconds(2.85f);
+        yield return new WaitForSeconds(parryCooldown);
         canParry = true;
     }
+
 
     /*
      * Callback del menú.

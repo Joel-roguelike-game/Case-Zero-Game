@@ -78,6 +78,7 @@ public class PlayerHealth : MonoBehaviour
             if (parryInvulActive && source != null)
             {
                 source.SetParryAffected();
+                CombatEvents.OnParrySuccess?.Invoke(stats);
                 SlowMotionController.Instance.TriggerParrySlow();
             }
 

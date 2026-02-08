@@ -210,6 +210,7 @@ public class PlayerStats : MonoBehaviour
      * Intenta activar la habilidad activa de la clase
      * respetando el cooldown.
      */
+    
     public void TryActivate()
     {
         if (classActive == null)

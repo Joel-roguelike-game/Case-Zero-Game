@@ -44,8 +44,11 @@ public class SlowMotionController : MonoBehaviour
     public void TriggerParrySlow()
     {
         if (slowRoutine != null)
+        {
+            Time.timeScale = previousTimeScale;
+            Time.fixedDeltaTime = previousFixedDelta;
             StopCoroutine(slowRoutine);
-
+        }
         slowRoutine = StartCoroutine(SlowRoutine());
     }
 
