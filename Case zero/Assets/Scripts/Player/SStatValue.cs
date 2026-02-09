@@ -27,11 +27,18 @@ public class StatValue
     public void Recalculate()
     {
         float value = Base;
+        if (Mathf.Abs(PercentBonus) < 0.0001f)
+            PercentBonus = 0f;
+
+        if (Mathf.Abs(FlatBonus) < 0.0001f)
+            FlatBonus = 0f;
+
         value += FlatBonus;
         value *= (1f + PercentBonus);
         value *= Mathf.Max(1f, Multiplier);
-
+        
         Current = value;
+        Current = Mathf.Round(Current * 1000f) / 1000f;
     }
 
     public void AddFlat(float value)

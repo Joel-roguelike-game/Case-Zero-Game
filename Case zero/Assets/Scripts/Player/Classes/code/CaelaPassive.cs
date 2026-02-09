@@ -41,25 +41,40 @@ public class CaelaPassive : SOClassPassive
 
     public override void Activate(PlayerStats stats)
     {
-        Debug.Log("[CaelaPassive] ✅ Espíritu Luchador activado");
-        PlayerMovement movement =  stats.GetComponent<PlayerMovement>();
-        CombatEvents.OnParrySuccess += OnParrySuccess;
-        states[stats] = new State();
+        Debug.Log("[CaelaPassive] ✅ Espíritu Luchador ACTIVADO");
 
-        movement = stats.GetComponent<PlayerMovement>();
-        movement.parryCooldown -= movement.parryCooldown * baseParryCooldownReduction;
-        movement.parryStaminaCost -= movement.parryStaminaCost * baseParryCostReduction;
+        PlayerMovement movement = stats.GetComponent<PlayerMovement>();
+        if (movement == null)
+        {
+            Debug.LogError("[CaelaPassive] ❌ PlayerMovement no encontrado");
+            return;
+        }
+
+        CombatEvents.OnParrySuccess += OnParrySuccess;
+
+        State state = new State();
+        states[stats] = state;
+
+        // Guardamos valores base
+        state.baseParryCooldown = movement.parryCooldown;
+        state.baseParryStaminaCost = movement.parryStaminaCost;
+
+        // Aplicamos reducción base
+        movement.parryCooldown =
+            state.baseParryCooldown * (1f - baseParryCooldownReduction);
+
+        movement.parryStaminaCost =
+            state.baseParryStaminaCost * (1f - baseParryCostReduction);
+
         Debug.Log(
-            $"[CaelaPassive] Base parry CD reducido un {baseParryCooldownReduction * 100}%"
-        );
-        Debug.Log(
-            movement.parryCooldown +" | "+movement.parryStaminaCost
+            $"[CaelaPassive] Base Parry CD: {movement.parryCooldown} | " +
+            $"Base Stamina Cost: {movement.parryStaminaCost}"
         );
     }
 
     public override void Deactivate(PlayerStats stats)
     {
-        Debug.Log("[CaelaPassive] ❌ Desactivando Espíritu Luchador");
+        Debug.Log("[CaelaPassive] ❌ Espíritu Luchador DESACTIVADO");
 
         CombatEvents.OnParrySuccess -= OnParrySuccess;
 
@@ -73,7 +88,6 @@ public class CaelaPassive : SOClassPassive
         {
             movement.parryCooldown = state.baseParryCooldown;
             movement.parryStaminaCost = state.baseParryStaminaCost;
-            movement.parryCooldown = 2.85f;
         }
 
         if (state.tickRoutine != null)
@@ -97,13 +111,12 @@ public class CaelaPassive : SOClassPassive
         {
             state.charges.Sort((a, b) => a.expiry.CompareTo(b.expiry));
             state.charges[0].expiry = Time.time + chargeDuration;
-
-            Debug.Log("[CaelaPassive] 🔁 Carga renovada (límite alcanzado)");
+            Debug.Log("[CaelaPassive] 🔁 Carga renovada (límite)");
         }
         else
         {
             state.charges.Add(new Charge { expiry = Time.time + chargeDuration });
-            Debug.Log("[CaelaPassive] ➕ Nueva carga obtenida");
+            Debug.Log("[CaelaPassive] ➕ Nueva carga");
         }
 
         if (state.tickRoutine == null)
@@ -113,12 +126,12 @@ public class CaelaPassive : SOClassPassive
     }
 
     // =========================
-    // CHARGE HANDLING
+    // CHARGES
     // =========================
 
     private IEnumerator ChargeTick(PlayerStats stats, State state)
     {
-        Debug.Log("[CaelaPassive] ⏱ Iniciando control de expiración de cargas");
+        Debug.Log("[CaelaPassive] ⏱ Control de expiración iniciado");
 
         while (state.charges.Count > 0)
         {
@@ -128,7 +141,7 @@ public class CaelaPassive : SOClassPassive
         }
 
         state.tickRoutine = null;
-        Debug.Log("[CaelaPassive] ⌛ Todas las cargas han expirado");
+        Debug.Log("[CaelaPassive] ⌛ Todas las cargas expiradas");
     }
 
     private void CleanupExpired(State state)
@@ -144,7 +157,7 @@ public class CaelaPassive : SOClassPassive
     }
 
     // =========================
-    // BONUS APPLICATION
+    // BONUSES
     // =========================
 
     private void UpdateBonuses(PlayerStats stats, State state)
@@ -161,24 +174,19 @@ public class CaelaPassive : SOClassPassive
         PlayerMovement movement = stats.GetComponent<PlayerMovement>();
         if (movement != null)
         {
-            movement.CurrentParryCooldownMultiplier =
-                Mathf.Clamp(
-                    1f
-                    - baseParryCooldownReduction
-                    - (newStacks * parryCooldownPerCharge),
-                    0.4f,
-                    1f
-                );
+            float finalCooldown =
+                state.baseParryCooldown
+                * (1f - baseParryCooldownReduction)
+                * (1f - newStacks * parryCooldownPerCharge);
+
+            movement.parryCooldown = Mathf.Max(0.2f, finalCooldown);
 
             Debug.Log(
-                $"[CaelaPassive] 🛡 Parry CD Multiplier actualizado: " +
-                $"{movement.CurrentParryCooldownMultiplier}"
+                $"[CaelaPassive] 🛡 Parry CD recalculado: {movement.parryCooldown}"
             );
         }
 
-        Debug.Log(
-            $"[CaelaPassive] 🔼 Cargas activas: {newStacks}/{maxCharges}"
-        );
+        Debug.Log($"[CaelaPassive] 🔼 Cargas: {newStacks}/{maxCharges}");
     }
 
     private void ApplyBonuses(PlayerStats stats, int stacks)
@@ -192,24 +200,18 @@ public class CaelaPassive : SOClassPassive
         stats.lifestealPercent.Recalculate();
 
         Debug.Log(
-            $"[CaelaPassive] Bonus aplicados ({stacks}): " +
-            $"CaC {(cacBonusPerCharge * stacks) * 100}% | " +
-            $"Dist {(distBonusPerCharge * stacks) * 100}% | " +
-            $"LS {(lifestealPerCharge * stacks) * 100}%"
+            $"[CaelaPassive] Bonus ({stacks}) → " +
+            $"CaC +{cacBonusPerCharge * stacks * 100}% | " +
+            $"Dist +{distBonusPerCharge * stacks * 100}% | " +
+            $"LS +{lifestealPerCharge * stacks * 100}%"
         );
     }
 
     private void RemoveBonuses(PlayerStats stats, int stacks)
     {
         if (stacks == 0) return;
-
-        Debug.Log($"[CaelaPassive] ❌ Eliminando bonus ({stacks} stacks)");
         ApplyBonuses(stats, -stacks);
     }
-
-    // =========================
-    // DEBUG / UI
-    // =========================
 
     public int GetCharges(PlayerStats stats)
     {
