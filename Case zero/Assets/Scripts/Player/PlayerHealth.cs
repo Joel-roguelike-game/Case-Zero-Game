@@ -178,5 +178,12 @@ public class PlayerHealth : MonoBehaviour
         stats.currentHp =
             Mathf.Min(stats.currentHp + amount, stats.maxHP.Current);
     }
+    public void HealPercent(float percent)
+    {
+        if (percent <= 0f)
+            return;
 
+        float amount = stats.maxHP.Current * percent;
+        Heal(amount);
+    }
 }

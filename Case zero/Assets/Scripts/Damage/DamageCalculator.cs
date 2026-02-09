@@ -45,4 +45,23 @@ public static class DamageCalculator
 
         return ctx;
     }
+    public static DamageContext CreatePureDamage(
+        PlayerStats source,
+        float damage,
+        bool isCrit,
+        SOClassActive activeSource = null
+    )
+    {
+        DamageContext ctx = new DamageContext
+        {
+            damage = damage,
+            isCrit = isCrit,
+            source = source,
+            activeSource = activeSource
+        };
+
+        CombatEvents.OnPlayerHit?.Invoke(source, ctx);
+        return ctx;
+    }
+
 }
